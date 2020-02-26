@@ -36,6 +36,7 @@ public class Board {
 		if(x >= 0 && x <= Board.maxIndex && y >= 0 && y <= Board.maxIndex) {
 			board[x][y] = piece;
 		}
+		else System.out.println("设置点在棋盘外了");
 		
 	}
 	

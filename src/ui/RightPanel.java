@@ -26,7 +26,7 @@ public class RightPanel extends JPanel{
 		xiaoxiLabel.setFont(tempfont);
 		
 		//消息文本
-		messageArea = new JTextArea();
+		messageArea = new JTextArea("初始化中...");
 //		messageArea.setEditable(false);
 		messageArea.setBackground(Color.yellow);
 		messageArea.setLineWrap(true);

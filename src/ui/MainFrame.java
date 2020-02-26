@@ -4,14 +4,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Label;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -19,13 +17,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import model.Board;
+import model.Point;
 import opening.Open;
+import ui.ChessState.Round;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 5520531127962754351L;
@@ -42,6 +40,30 @@ public class MainFrame extends JFrame {
 		mainPanel = new conPane(this, this);
 	    setContentPane(mainPanel);
 	    revalidate();
+	    
+	    //开局
+  		Open.init();
+  		mainPanel.rightText.messageArea.append("初始化完成！\n");
+  		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------行棋阶段------------\n");
+  		mainPanel.rightText.qipuArea.append("W1：4D\n");
+  		mainPanel.rightText.qipuArea.append("B2：5E\n");
+  		
+  		if(selfColor == Color.white) {
+  			mainPanel.rightText.messageArea.setText("行棋阶段：\n轮到电脑下！\n请等待..\n");
+  			state.round = Round.SELF;
+  			ArrayList<Point> tArrayList = Open.getBestPoints_v3();
+  			int a = new Random().nextInt(tArrayList.size());
+  			Open.play(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
+  			mainPanel.centerBoard.setPiece(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
+  			state.selfPiece ++;
+  			state.emptyPiece --;
+  			state.round = Round.ENEMY;
+  			state.addition ++;
+  			mainPanel.rightText.qipuArea.append((selfColor == Color.black? "B":"W") + state.addition +
+  					"：" + tArrayList.get(a).x + String.valueOf((char)(tArrayList.get(a).y - 1 + 'A')) + "\n");
+  		}
+  		mainPanel.rightText.messageArea.setText("行棋阶段：\n轮到你了！\n");
+  		
 	}
 	
 	public static final int boardSize = 8;
@@ -51,8 +73,8 @@ public class MainFrame extends JFrame {
 	
 	public ChessState state;
 	public int rotateA = 0;					//0代表原始，1~3代表顺时针旋转90°~270°
-	public Color enemyColor = Color.black;	//黑0，白1
-	public Color selfColor = Color.white;	//黑0，白1
+	public Color enemyColor = Color.black;
+	public Color selfColor = Color.white;
 	
 	//组件
 	public conPane mainPanel;
@@ -118,7 +140,28 @@ public class MainFrame extends JFrame {
 	    // 显示对话框
 	    dialog.setVisible(true);
 	}
-
+	
+	public void display() {
+		String c = "E";
+		for(int i = 1; i <= Board.maxIndex; i++) {
+			System.out.printf("%2d ",i);
+			for(int j = 1; j <= Board.maxIndex; j++) {
+				if(Board.getBoard(i, j) == Board.EMPTY) c = "·";
+				if(Board.getBoard(i, j) == Board.ENEMY) c = "○";
+				if(Board.getBoard(i, j) == Board.SELF) c = "●";
+				System.out.print(c + " ");
+			}
+			System.out.println();
+		}
+		System.out.print("   ");
+		for(int j = 0; j < Board.maxIndex; j++) {
+			System.out.print((char)(j + 'A') + " ");
+		}
+		System.out.println();
+		System.out.println();
+		System.out.println();
+	}
+	
 	/**
 	 * 初始化
 	 * 用于restart
@@ -189,26 +232,7 @@ public class MainFrame extends JFrame {
 		    display();
 		}
 		
-		public void display() {
-			String c = "E";
-			for(int i = 1; i <= Board.maxIndex; i++) {
-				System.out.printf("%2d ",i);
-				for(int j = 1; j <= Board.maxIndex; j++) {
-					if(Board.getBoard(i, j) == Board.EMPTY) c = "·";
-					if(Board.getBoard(i, j) == Board.ENEMY) c = "○";
-					if(Board.getBoard(i, j) == Board.SELF) c = "●";
-					System.out.print(c + " ");
-				}
-				System.out.println();
-			}
-			System.out.print("   ");
-			for(int j = 0; j < Board.maxIndex; j++) {
-				System.out.print((char)(j + 'A') + " ");
-			}
-			System.out.println();
-			System.out.println();
-			System.out.println();
-		}
+		
 		
 		
 		//组件

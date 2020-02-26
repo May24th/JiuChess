@@ -1,5 +1,6 @@
 package model;
 
+
 public class Point implements Comparable{
 	public int x;
 	public int y;
@@ -66,4 +67,16 @@ public class Point implements Comparable{
 		return 0;
 	}
 	
+	
+	public Point clockWise() {
+		return new Point(y, Board.maxIndex + 1 - x);
+	}
+	
+	public Point NiclockWise() {
+		return new Point(Board.maxIndex + 1 - y, x);
+	}
+	
+	public Point Centrosymmetric() {
+		return new Point(Board.maxIndex + 1 - x, Board.maxIndex + 1 - y);
+	}
 }

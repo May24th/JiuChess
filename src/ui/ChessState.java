@@ -5,13 +5,13 @@ import model.Point;
 public class ChessState {
 	public  ChessState() {
 		
-		stage = Stage.EAT;		
+		stage = Stage.OPEN;		
 		round = Round.ENEMY;			
-		eatStage = EatStage.SELECTING;	
+		eatStage = EatStage.NOTEATING;	
 		enemyPiece = 1;
 		selfPiece = 1;
 		emptyPiece = MainFrame.boardSize * MainFrame.boardSize - 2;
-		addition = 3;
+		addition = 2;
 	}
 	
 	/**阶段：开局，吃子*/
@@ -39,8 +39,8 @@ public class ChessState {
 	public int selfPiece;
 	/**空的数目*/
 	public int emptyPiece;
-	
-	private int addition;
+	/**记录回合数*/
+	public int addition;
 	/**已选择的跳吃的点，暂时储存*/
 	private Point jumpPiece;
 	
@@ -50,16 +50,5 @@ public class ChessState {
 	
 	public Point getJumpPiece() {
 		return jumpPiece.clone();
-	}
-		
-	//仅适用于开局
-	public void enemyPieceSet_Open() {
-		enemyPiece ++;
-		emptyPiece --;
-	}
-	
-	public void selfPieceSet_Open() {
-		enemyPiece ++;
-		emptyPiece --;
 	}
 }

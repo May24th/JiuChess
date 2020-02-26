@@ -9,6 +9,7 @@ import java.awt.Label;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JPanel;
@@ -16,6 +17,10 @@ import javax.swing.JPanel;
 import model.Board;
 import model.Point;
 import opening.Open;
+import test.ErrorTracker;
+import ui.ChessState.EatStage;
+import ui.ChessState.Round;
+import ui.ChessState.Stage;
 
 public class CenterBorad extends JPanel implements MouseMotionListener, MouseListener {
 	private static final long serialVersionUID = -1602322585809545383L;
@@ -24,8 +29,6 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	 * @param row 行数/2
 	 */
 	public CenterBorad(MainFrame owner, Component parentComponent, int row) {
-		Open.init();
-		Random rand = new Random();
 		setLayout(null);
 		setFont(new Font("微软雅黑", Font.BOLD, 16));
 		ownerFrame = owner;
@@ -63,7 +66,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					public void mouseEntered(MouseEvent e) {}
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						
+						//test
 						
 					}
 				}
@@ -91,13 +94,13 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					public void mouseExited(MouseEvent e) {}
 					@Override
 					public void mouseEntered(MouseEvent e) {
-//						if(ownerFrame.state.eatStage == chessState.EatStage.SELECTING && Board.getBoard(ti, tj) == Board.ENEMY) {
-						if(ownerFrame.state.eatStage == ChessState.EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
+//						if(ownerFrame.state.eatStage == EatStage.SELECTING && Board.getBoard(ti, tj) == Board.ENEMY) {
+						if(ownerFrame.state.eatStage == EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setVisible(true);
 						}
-//						else if(ownerFrame.state.eatStage == chessState.EatStage.FANGEATING && Board.getBoard(ti, tj) == Board.SELF){
-						else if(ownerFrame.state.eatStage == ChessState.EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
+//						else if(ownerFrame.state.eatStage == EatStage.FANGEATING && Board.getBoard(ti, tj) == Board.SELF){
+						else if(ownerFrame.state.eatStage == EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setVisible(true);
 						}
@@ -114,6 +117,9 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		}
 		formalPiece[gridrow / 2][gridrow / 2].setPiece(selfColor);
 		formalPiece[gridrow / 2 + 1][gridrow / 2 + 1].setPiece(enemyColor);
+
+		
+		
 	}
 	
 	
@@ -213,7 +219,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	private boolean isTempVisible(int px, int py) {
 		int x = px - letterSize - marginWidth;
 		int y = py - marginWidth;
-		if(ownerFrame.state.round == ChessState.Round.SELF) return false;								//回合判定
+		if(ownerFrame.state.round == Round.SELF) return false;								//回合判定
 		else if(x < 0 ||x > boardSize + chessSize || y < 0 || y > boardSize + chessSize) return false;	//棋盘外边界判定
 		else if(x % gridSize > chessSize || y % gridSize > chessSize ) return false;					//棋盘内blank判定
 		else {
@@ -222,19 +228,22 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			
 			
 //			//V1 有点慢，有点麻烦
-//			if(ownerFrame.state.stage == chessState.Stage.OPEN) {
+//			if(ownerFrame.state.stage == Stage.OPEN) {
 //				if(piecestate == Board.EMPTY) return true;
 //				else return false;
 //			}
 //			else {
-//				if(ownerFrame.state.eatStage == chessState.EatStage.NOTEATING) {
-//					ownerFrame.mainPanel.rightText.messageArea.setText("你妈炸了！ERROR_stage与eatStage不匹配");
+//				if(ownerFrame.state.eatStage == EatStage.NOTEATING) {
+//					ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
+//							ErrorTracker.getTestMessage() +
+//							"ERROR_stage与eatStage不匹配\n" +
+//							"--------\n");
 //					return false;
 //				}
 //				//在选择阶段，选择敌方棋
-//				else if(ownerFrame.state.eatStage == chessState.EatStage.SELECTING && piecestate == Board.ENEMY) return true;
+//				else if(ownerFrame.state.eatStage == EatStage.SELECTING && piecestate == Board.ENEMY) return true;
 //				//在跳棋阶段，可行的空点
-//				else if(ownerFrame.state.eatStage == chessState.EatStage.JUMPING && piecestate == Board.EMPTY) 
+//				else if(ownerFrame.state.eatStage == EatStage.JUMPING && piecestate == Board.EMPTY) 
 //				{
 //					Point temp = ownerFrame.state.getJumpPiece();
 //					if(
@@ -245,19 +254,22 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 //					) return true;
 //				}
 //				//方吃阶段，选择了我方棋子
-//				else if(ownerFrame.state.eatStage == chessState.EatStage.FANGEATING && piecestate == Board.SELF) return true;
+//				else if(ownerFrame.state.eatStage == EatStage.FANGEATING && piecestate == Board.SELF) return true;
 //			}
 			
 			
 			//V2 简单粗暴
 			if (piecestate != Board.EMPTY) return false;
 			else {
-				if(ownerFrame.state.stage == ChessState.Stage.OPEN) return true;
-				else if(ownerFrame.state.eatStage == ChessState.EatStage.NOTEATING) {
-					ownerFrame.mainPanel.rightText.messageArea.setText("你妈炸了！ERROR_stage与eatStage不匹配");
+				if(ownerFrame.state.stage == Stage.OPEN) return true;
+				else if(ownerFrame.state.eatStage == EatStage.NOTEATING) {
+					ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
+							ErrorTracker.getTestMessage() +
+							"ERROR_stage与eatStage不匹配\n" +
+							"--------\n");
 					return false;
 				}
-				else if(ownerFrame.state.eatStage == ChessState.EatStage.JUMPING) {
+				else if(ownerFrame.state.eatStage == EatStage.JUMPING) {
 					Point JumpPiecetemp = ownerFrame.state.getJumpPiece();
 					if(
 							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
@@ -290,7 +302,10 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		else if((a == selfColor))return Board.SELF;
 		
 		//test
-		ownerFrame.mainPanel.rightText.messageArea.setText("你妈炸了！CenterBoard_getPieceState");
+		ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
+				ErrorTracker.getTestMessage() +
+				"无相同的颜色" +
+				"--------\n");
 		return 1000;
 	}
 	
@@ -328,13 +343,13 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			Board.setBoard(x, y, state);
 			break;
 		case 1:
-			Board.setBoard(y, gridrow - x + 1, state);
+			Board.setBoard(gridrow - y + 1, x, state);
 			break;
 		case 2:
 			Board.setBoard(gridrow - x + 1,gridrow - y + 1, state);
 			break;
 		case 3:
-			Board.setBoard(gridrow - y + 1, x, state);
+			Board.setBoard(y, gridrow - x + 1, state);
 			break;
 		default:
 			break;
@@ -345,11 +360,11 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		case 0:
 			return Board.getBoard(x, y);
 		case 1:
-			return Board.getBoard(y, gridrow - x + 1);
+			return Board.getBoard(gridrow - y + 1, x);
 		case 2:
 			return Board.getBoard(gridrow - x + 1,gridrow - y + 1);
 		case 3:
-			return Board.getBoard(gridrow - y + 1, x);
+			return Board.getBoard(y, gridrow - x + 1);
 		default:
 			return -1;
 		}
@@ -362,13 +377,13 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			Board.setBoard(x, y, state);
 			break;
 		case 1:
-			Board.setBoard(y, gridrow - x + 1, state);
+			Board.setBoard(gridrow - y + 1, x, state);
 			break;
 		case 2:
 			Board.setBoard(gridrow - x + 1,gridrow - y + 1, state);
 			break;
 		case 3:
-			Board.setBoard(gridrow - y + 1, x, state);
+			Board.setBoard(y, gridrow - x + 1, state);
 			break;
 		default:
 			break;
@@ -381,18 +396,31 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		case 0:
 			return Board.getBoard(x, y);
 		case 1:
-			return Board.getBoard(y, gridrow - x + 1);
+			return Board.getBoard(gridrow - y + 1, x);
 		case 2:
 			return Board.getBoard(gridrow - x + 1,gridrow - y + 1);
 		case 3:
-			return Board.getBoard(gridrow - y + 1, x);
+			return Board.getBoard(y, gridrow - x + 1);
 		default:
 			return -1;
 		}
 	}
 	//安全
 	
-	
+	public void setPiece(int x, int y, int t) {
+		switch (t) {
+		case Board.EMPTY:
+			formalPiece[x][y].setEmpty();
+			break;
+		case Board.SELF:
+			formalPiece[x][y].setPiece(selfColor);
+			break;
+		case Board.ENEMY:
+			formalPiece[x][y].setPiece(enemyColor);
+			break;
+		}
+		
+	}
 	
 	
 	/**
@@ -451,9 +479,8 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		private static final long serialVersionUID = 3724233875572917594L;
 
 		public formalPiece(MainFrame owner, Component parentComponent) {
-			super(owner, parentComponent, Color.black);
+			super(owner, parentComponent, Color.white);
 			setVisible(false);
-//			addMouseListener(l);
 		}
 		
 		public void setColor(Color a) {

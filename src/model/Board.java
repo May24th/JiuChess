@@ -74,4 +74,26 @@ public class Board {
 	public static int[][] getBoard(){
 		return board;
 	}
+	
+	public static void display() {
+		String c = "E";
+		for(int i = 1; i <= maxIndex; i++) {
+			System.out.print((char)(i + 'A' - 1) + " ");
+			for(int j = 1; j <= maxIndex; j++) {
+				if(board[j][i] == EMPTY) c = "·";
+				if(board[j][i] == ENEMY) c = "○";
+				if(board[j][i] == SELF) c = "●";
+				System.out.print(c + " ");
+			}
+			System.out.println();
+		}
+		System.out.print("  ");
+		for(int j = 0; j < maxIndex; j++) {
+			System.out.printf("%1d ",j + 1);
+		}
+		System.out.println();
+		System.out.println();
+		System.out.println();
+	}
+	
 }

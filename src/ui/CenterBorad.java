@@ -12,7 +12,9 @@ import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import model.Board;
 import model.Point;
@@ -21,6 +23,7 @@ import test.ErrorTracker;
 import ui.ChessState.EatStage;
 import ui.ChessState.Round;
 import ui.ChessState.Stage;
+import ui.MainFrame.conPane;
 
 public class CenterBorad extends JPanel implements MouseMotionListener, MouseListener {
 	private static final long serialVersionUID = -1602322585809545383L;
@@ -28,12 +31,16 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	 * 创建棋盘类
 	 * @param row 行数/2
 	 */
-	public CenterBorad(MainFrame owner, Component parentComponent, int row) {
+	public CenterBorad(MainFrame owner, conPane parentComponent, int row) {
 		setLayout(null);
 		setFont(new Font("微软雅黑", Font.BOLD, 16));
 		ownerFrame = owner;
 		this.selfColor = owner.selfColor;
 		this.enemyColor = owner.enemyColor;
+		this.qipuText = parentComponent.rightText.qipuArea;
+		this.mesText = parentComponent.rightText.messageArea;
+		this.state = owner.state;
+		this.bottom = parentComponent.bottomLabel;
 		
 		this.size = row*2*gridSize - gridSize + chessSize + letterSize + 2*marginWidth;
 		this.boardSize = row*2*gridSize - gridSize;
@@ -66,8 +73,141 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					public void mouseEntered(MouseEvent e) {}
 					@Override
 					public void mouseClicked(MouseEvent e) {
-						//test
+						previewPiece.setVisible(false);
+						if(state.stage == Stage.OPEN) {
+							//在开局阶段
+							Point a;
+							switch (ownerFrame.rotateA) {
+							case 0:
+								a = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+								break;
+							case 1:
+								a = (new Point(previewPiece.getlocX(), previewPiece.getlocY())).NiclockWise();
+								break;
+							case 2:
+								a = (new Point(previewPiece.getlocX(), previewPiece.getlocY())).Centrosymmetric();
+								break;
+							case 3:
+								a = (new Point(previewPiece.getlocX(), previewPiece.getlocY())).clockWise();
+							default:
+								a = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+								break;
+							}
+							Open.play(a.x, a.y, Board.ENEMY);
+							formalPiece[previewPiece.getlocX()][previewPiece.getlocY()].setPiece(enemyColor);
+							state.enemyPiece ++;
+				  			state.emptyPiece --;
+				  			state.round = Round.SELF;
+				  			state.addition ++;
+				  			qipuText.append((enemyColor == Color.black? "B":"W") + state.addition +
+				  					"：" + previewPiece.getlocX() + String.valueOf((char)(previewPiece.getlocY() - 1 + 'A')) + "\n");
+				  			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+				  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+				  					"，空子数：" + state.emptyPiece + "。");
+				  			
+				  			if(state.emptyPiece > 0) {
+				  				mesText.setText("布局阶段：\n轮到电脑下！\n请等待...\n");
+				  				//还在开局
+				  	  			state.round = Round.SELF;
+				  	  			ArrayList<Point> tArrayList = Open.getBestPoints_v3();
+				  	  			int a1 = new Random().nextInt(tArrayList.size());
+				  	  			Open.play(tArrayList.get(a1).x, tArrayList.get(a1).y, Board.SELF);
+					  	  		switch (ownerFrame.rotateA) {
+								case 0:
+									a = tArrayList.get(a1);
+									break;
+								case 1:
+									a = tArrayList.get(a1).clockWise();
+									break;
+								case 2:
+									a = tArrayList.get(a1).Centrosymmetric();
+									break;
+								case 3:
+									a = tArrayList.get(a1).NiclockWise();
+								default:
+									a = tArrayList.get(a1);
+									break;
+								}
+				  	  			formalPiece[a.x][a.y].setPiece(selfColor);
+				  	  			state.selfPiece ++;
+				  	  			state.emptyPiece --;
+				  	  			state.addition ++;
+				  	  			qipuText.append((selfColor == Color.black? "B":"W") + state.addition +
+				  	  					"：" + a.x + String.valueOf((char)(a.y - 1 + 'A')) + "\n");
+					  	  		bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+					  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+					  					"，空子数：" + state.emptyPiece + "。");
+					  	  		if(state.emptyPiece == 0) {
+					  	  			//进入行棋阶段
+						  	  		Board.setBoard(MainFrame.boardSize/2, MainFrame.boardSize/2, Board.EMPTY);
+						  			Board.setBoard(MainFrame.boardSize/2 + 1, MainFrame.boardSize/2 + 1, Board.EMPTY);
+						  			switch (ownerFrame.rotateA) {
+									case 0:
+									case 2:
+										formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2].setEmpty();
+										formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2 + 1].setEmpty();
+										break;
+									case 1:
+									case 3:
+										formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2 + 1].setEmpty();
+										formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2].setEmpty();
+										break;
+									default:
+										formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2].setEmpty();
+										formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2 + 1].setEmpty();
+										break;
+									}
+						  			state.stage = Stage.EAT;
+						  			state.enemyPiece --;
+						  			state.selfPiece --;
+						  			state.emptyPiece ++;
+					  	  			mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
+					  	  			//行棋第一步
+					  	  			//！！！
+					  	  		}
+					  	  		else {
+					  	  			//依然在布局
+					  	  			state.round = Round.ENEMY;
+									mesText.setText("布局阶段：\n轮到你了！\n");
+								}
+				  	  			
+				  			}
+				  			else {
+				  				//开始行棋
+				  				//进入行棋阶段
+				  				Board.setBoard(MainFrame.boardSize/2, MainFrame.boardSize/2, Board.EMPTY);
+					  			Board.setBoard(MainFrame.boardSize/2 + 1, MainFrame.boardSize/2 + 1, Board.EMPTY);
+					  			switch (ownerFrame.rotateA) {
+								case 0:
+								case 2:
+									formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2].setEmpty();
+									formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2 + 1].setEmpty();
+									break;
+								case 1:
+								case 3:
+									formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2 + 1].setEmpty();
+									formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2].setEmpty();
+									break;
+								default:
+									formalPiece[MainFrame.boardSize/2][MainFrame.boardSize/2].setEmpty();
+									formalPiece[MainFrame.boardSize/2 + 1][MainFrame.boardSize/2 + 1].setEmpty();
+									break;
+								}
+					  			state.stage = Stage.EAT;
+					  			state.eatStage = EatStage.SELECTING;
+					  			state.enemyPiece --;
+					  			state.selfPiece --;
+					  			state.emptyPiece ++;
+				  			}
+							
+						}
+						else {
+							//行棋阶段
+							
+						}
 						
+						
+						Board.display();
 					}
 				}
 		);
@@ -92,15 +232,18 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					public void mousePressed(MouseEvent e) {}
 					@Override
 					public void mouseExited(MouseEvent e) {}
+					//启用
 					@Override
 					public void mouseEntered(MouseEvent e) {
-//						if(ownerFrame.state.eatStage == EatStage.SELECTING && Board.getBoard(ti, tj) == Board.ENEMY) {
-						if(ownerFrame.state.eatStage == EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
+						if(state.eatStage == EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setVisible(true);
 						}
-//						else if(ownerFrame.state.eatStage == EatStage.FANGEATING && Board.getBoard(ti, tj) == Board.SELF){
-						else if(ownerFrame.state.eatStage == EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
+						else if(state.eatStage == EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
+							previewPiece.setLocation(o.x,o.y);
+							previewPiece.setVisible(true);
+						}
+						else if(state.eatStage == EatStage.FLYSELECTING && getPieceState(ti, tj) == Board.ENEMY) {
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setVisible(true);
 						}
@@ -112,7 +255,6 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				
 				formalPiece[i][j].addMouseListener(l);
 				
-//				formalPiece[i][j].setVisible(true);
 			}
 		}
 		formalPiece[gridrow / 2][gridrow / 2].setPiece(selfColor);
@@ -147,7 +289,10 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	private MainFrame ownerFrame;
 	private Color selfColor;
 	private Color enemyColor;
-	
+	private JTextArea qipuText;
+	private JTextArea mesText;
+	private ChessState state;
+	private JLabel bottom;
 	
 	/**
 	 * 绘制棋盘的外观
@@ -227,49 +372,50 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			int piecestate = getPieceState(tempPoint.x, tempPoint.y);
 			
 			
-//			//V1 有点慢，有点麻烦
-//			if(ownerFrame.state.stage == Stage.OPEN) {
-//				if(piecestate == Board.EMPTY) return true;
-//				else return false;
-//			}
-//			else {
-//				if(ownerFrame.state.eatStage == EatStage.NOTEATING) {
-//					ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
-//							ErrorTracker.getTestMessage() +
-//							"ERROR_stage与eatStage不匹配\n" +
-//							"--------\n");
-//					return false;
-//				}
-//				//在选择阶段，选择敌方棋
-//				else if(ownerFrame.state.eatStage == EatStage.SELECTING && piecestate == Board.ENEMY) return true;
-//				//在跳棋阶段，可行的空点
-//				else if(ownerFrame.state.eatStage == EatStage.JUMPING && piecestate == Board.EMPTY) 
-//				{
-//					Point temp = ownerFrame.state.getJumpPiece();
-//					if(
-//							(temp.x == tempPoint.x && temp.y == tempPoint.y + 2 && getPieceState(temp.x, temp.y + 1) == Board.SELF)||
-//							(temp.x == tempPoint.x && temp.y == tempPoint.y - 2 && getPieceState(temp.x, temp.y - 1) == Board.SELF)||
-//							(temp.x == tempPoint.x + 2 && temp.y == tempPoint.y && getPieceState(temp.x + 1, temp.y) == Board.SELF)||
-//							(temp.x == tempPoint.x - 2 && temp.y == tempPoint.y && getPieceState(temp.x - 1, temp.y) == Board.SELF)
-//					) return true;
-//				}
-//				//方吃阶段，选择了我方棋子
-//				else if(ownerFrame.state.eatStage == EatStage.FANGEATING && piecestate == Board.SELF) return true;
-//			}
-			
-			
-			//V2 简单粗暴
-			if (piecestate != Board.EMPTY) return false;
+			//V1 有点慢，有点麻烦
+			if(state.stage == Stage.OPEN) {
+				if(piecestate == Board.EMPTY) return true;
+				else return false;
+			}
 			else {
-				if(ownerFrame.state.stage == Stage.OPEN) return true;
-				else if(ownerFrame.state.eatStage == EatStage.NOTEATING) {
-					ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
+				if(state.eatStage == EatStage.NOTEATING) {
+					qipuText.append("-------\n" +
 							ErrorTracker.getTestMessage() +
 							"ERROR_stage与eatStage不匹配\n" +
 							"--------\n");
 					return false;
 				}
-				else if(ownerFrame.state.eatStage == EatStage.JUMPING) {
+				//在选择阶段，选择敌方棋
+				else if(state.eatStage == EatStage.SELECTING && piecestate == Board.ENEMY) return true;
+				//在跳棋阶段，可行的空点
+				else if(state.eatStage == EatStage.JUMPING && piecestate == Board.EMPTY) 
+				{
+					Point temp = ownerFrame.state.getJumpPiece();
+					if(
+							(temp.x == tempPoint.x && temp.y == tempPoint.y + 2 && getPieceState(temp.x, temp.y + 1) == Board.SELF)||
+							(temp.x == tempPoint.x && temp.y == tempPoint.y - 2 && getPieceState(temp.x, temp.y - 1) == Board.SELF)||
+							(temp.x == tempPoint.x + 2 && temp.y == tempPoint.y && getPieceState(temp.x + 1, temp.y) == Board.SELF)||
+							(temp.x == tempPoint.x - 2 && temp.y == tempPoint.y && getPieceState(temp.x - 1, temp.y) == Board.SELF)
+					) return true;
+				}
+				//方吃阶段，选择了我方棋子
+				else if(state.eatStage == EatStage.FANGEATING && piecestate == Board.SELF) return true;
+			}
+			
+			
+			//V2 简单粗暴
+			if (piecestate != Board.EMPTY) return false;
+			else {
+				if(state.stage == Stage.OPEN) return true;
+				else if(state.eatStage == EatStage.NOTEATING) {
+					//发生BUG
+					qipuText.append("-------\n" +
+							ErrorTracker.getTestMessage() +
+							"ERROR_stage与eatStage不匹配\n" +
+							"--------\n");
+					return false;
+				}
+				else if(state.eatStage == EatStage.JUMPING) {
 					Point JumpPiecetemp = ownerFrame.state.getJumpPiece();
 					if(
 							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
@@ -281,6 +427,9 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 							(JumpPiecetemp.x == tempPoint.x + 1 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x + 1, JumpPiecetemp.y) == Board.EMPTY)||
 							(JumpPiecetemp.x == tempPoint.x - 1 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x - 1, JumpPiecetemp.y) == Board.EMPTY)
 					) return true;
+				}
+				else if(state.eatStage == EatStage.FLYMOVE) {
+					return true;
 				}
 			}
 			
@@ -302,7 +451,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		else if((a == selfColor))return Board.SELF;
 		
 		//test
-		ownerFrame.mainPanel.rightText.qipuArea.append("-------\n" +
+		qipuText.append("-------\n" +
 				ErrorTracker.getTestMessage() +
 				"无相同的颜色" +
 				"--------\n");
@@ -330,82 +479,6 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	}
 	
 	
-	//接下去都是与Board相关的程序
-	/**
-	 * 在后台下棋
-	 * @param x 前端虚伪的参数x
-	 * @param y
-	 * @param state
-	 */
-	private void set_Board(int x, int y, int state){
-		switch (ownerFrame.rotateA) {
-		case 0:
-			Board.setBoard(x, y, state);
-			break;
-		case 1:
-			Board.setBoard(gridrow - y + 1, x, state);
-			break;
-		case 2:
-			Board.setBoard(gridrow - x + 1,gridrow - y + 1, state);
-			break;
-		case 3:
-			Board.setBoard(y, gridrow - x + 1, state);
-			break;
-		default:
-			break;
-		}
-	}
-	private int get_Board(int x,int y) {
-		switch (ownerFrame.rotateA) {
-		case 0:
-			return Board.getBoard(x, y);
-		case 1:
-			return Board.getBoard(gridrow - y + 1, x);
-		case 2:
-			return Board.getBoard(gridrow - x + 1,gridrow - y + 1);
-		case 3:
-			return Board.getBoard(y, gridrow - x + 1);
-		default:
-			return -1;
-		}
-	}
-	private void set_Board(Point o, int state){
-		int x = o.x;
-		int y = o.y;
-		switch (ownerFrame.rotateA) {
-		case 0:
-			Board.setBoard(x, y, state);
-			break;
-		case 1:
-			Board.setBoard(gridrow - y + 1, x, state);
-			break;
-		case 2:
-			Board.setBoard(gridrow - x + 1,gridrow - y + 1, state);
-			break;
-		case 3:
-			Board.setBoard(y, gridrow - x + 1, state);
-			break;
-		default:
-			break;
-		}
-	}
-	private int get_Board(Point o) {
-		int x = o.x;
-		int y = o.y;
-		switch (ownerFrame.rotateA) {
-		case 0:
-			return Board.getBoard(x, y);
-		case 1:
-			return Board.getBoard(gridrow - y + 1, x);
-		case 2:
-			return Board.getBoard(gridrow - x + 1,gridrow - y + 1);
-		case 3:
-			return Board.getBoard(y, gridrow - x + 1);
-		default:
-			return -1;
-		}
-	}
-	//安全
 	
 	public void setPiece(int x, int y, int t) {
 		switch (t) {

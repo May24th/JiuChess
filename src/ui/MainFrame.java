@@ -49,7 +49,7 @@ public class MainFrame extends JFrame {
   		mainPanel.rightText.qipuArea.append("B2：5E\n");
   		
   		if(selfColor == Color.white) {
-  			mainPanel.rightText.messageArea.setText("行棋阶段：\n轮到电脑下！\n请等待..\n");
+  			mainPanel.rightText.messageArea.setText("布局阶段：\n轮到电脑下！\n请等待...\n");
   			state.round = Round.SELF;
   			ArrayList<Point> tArrayList = Open.getBestPoints_v3();
   			int a = new Random().nextInt(tArrayList.size());
@@ -61,8 +61,9 @@ public class MainFrame extends JFrame {
   			state.addition ++;
   			mainPanel.rightText.qipuArea.append((selfColor == Color.black? "B":"W") + state.addition +
   					"：" + tArrayList.get(a).x + String.valueOf((char)(tArrayList.get(a).y - 1 + 'A')) + "\n");
+  			mainPanel.bottomLabel.setText("当前棋盘上黑子数：" + state.enemyPiece + "，白子数：" + state.selfPiece + "，空子数：" + state.emptyPiece + "。");
   		}
-  		mainPanel.rightText.messageArea.setText("行棋阶段：\n轮到你了！\n");
+  		mainPanel.rightText.messageArea.setText("布局阶段：\n轮到你了！\n");
   		
 	}
 	
@@ -140,27 +141,7 @@ public class MainFrame extends JFrame {
 	    // 显示对话框
 	    dialog.setVisible(true);
 	}
-	
-	public void display() {
-		String c = "E";
-		for(int i = 1; i <= Board.maxIndex; i++) {
-			System.out.printf("%2d ",i);
-			for(int j = 1; j <= Board.maxIndex; j++) {
-				if(Board.getBoard(i, j) == Board.EMPTY) c = "·";
-				if(Board.getBoard(i, j) == Board.ENEMY) c = "○";
-				if(Board.getBoard(i, j) == Board.SELF) c = "●";
-				System.out.print(c + " ");
-			}
-			System.out.println();
-		}
-		System.out.print("   ");
-		for(int j = 0; j < Board.maxIndex; j++) {
-			System.out.print((char)(j + 'A') + " ");
-		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-	}
+
 	
 	/**
 	 * 初始化
@@ -206,11 +187,6 @@ public class MainFrame extends JFrame {
 			});
 		    
 		    
-		    /**中心棋盘*/
-		    centerBoard = new CenterBorad(owner,this,boardSize/2);
-		    centerBoard.setLocation((int) (FrameSizeW/2 - centerBoard.getSize().getWidth()/2), 200);	//居中
-		    add(centerBoard);
-		    
 		    /**左边组件*/
 		    leftButton = new LeftPanel(owner, this);
 		    leftButton.setLocation(75, 250);
@@ -229,7 +205,12 @@ public class MainFrame extends JFrame {
 			bottomLabel.setBackground(Color.gray);
 		    add(bottomLabel);
 		    
-		    display();
+		    /**中心棋盘*/
+		    centerBoard = new CenterBorad(owner,this,boardSize/2);
+		    centerBoard.setLocation((int) (FrameSizeW/2 - centerBoard.getSize().getWidth()/2), 200);	//居中
+		    add(centerBoard);
+		    
+		    Board.display();
 		}
 		
 		

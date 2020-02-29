@@ -6,7 +6,7 @@ public class ChessState {
 	public  ChessState() {
 		
 		stage = Stage.OPEN;		
-		round = Round.ENEMY;			
+		round = Round.ENEMY;		
 		eatStage = EatStage.NOTEATING;	
 		enemyPiece = 1;
 		selfPiece = 1;
@@ -27,7 +27,9 @@ public class ChessState {
 		NOTEATING,
 		SELECTING,
 		JUMPING,
-		FANGEATING
+		FANGEATING,
+		FLYMOVE,
+		FLYSELECTING
 	};
 	
 	public Stage stage;
@@ -43,6 +45,8 @@ public class ChessState {
 	public int addition;
 	/**已选择的跳吃的点，暂时储存*/
 	private Point jumpPiece;
+	/**暂存方吃的数量*/
+	public int FangEatNum;
 	
 	public void setJumpPiece (int x,int y) {
 		jumpPiece = new Point(x, y);

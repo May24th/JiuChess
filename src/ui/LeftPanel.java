@@ -29,6 +29,7 @@ public class LeftPanel extends JPanel{
 		
 		endEating.setBounds(0, (buttonH + buttonInterval) * 3, sizeW, 75);
 		endEating.setFont(tempfont);
+		endEating.setVisible(false);
 		
 		add(huiqi);
 		add(restart);

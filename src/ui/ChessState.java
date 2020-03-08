@@ -1,5 +1,7 @@
 package ui;
 
+import java.util.ArrayList;
+
 import model.Point;
 
 public class ChessState {
@@ -16,20 +18,22 @@ public class ChessState {
 	
 	/**阶段：开局，吃子*/
 	public enum Stage{
-		OPEN,EAT
+		OPEN,
+		EAT
 	};
 	/**回合：敌方，己方*/
 	public enum Round{
-		SELF,ENEMY
+		SELF,
+		ENEMY
 	};
 	/**对手阶段判断与记录*/
 	public enum EatStage{
 		NOTEATING,
 		SELECTING,
 		JUMPING,
+		JUMPINGJ,
 		FANGEATING,
-		FLYMOVE,
-		FLYSELECTING
+		FLYMOVE
 	};
 	
 	public Stage stage;
@@ -47,12 +51,14 @@ public class ChessState {
 	private Point jumpPiece;
 	/**暂存方吃的数量*/
 	public int FangEatNum;
+	/**暂存跳吃的子,为了棋谱的作用，所以存的是后端棋盘的值*/
+	public ArrayList<Point> tempTC;
 	
-	public void setJumpPiece (int x,int y) {
+	public void setSelectPiece (int x,int y) {
 		jumpPiece = new Point(x, y);
 	}
 	
-	public Point getJumpPiece() {
+	public Point getSelectPiece() {
 		return jumpPiece.clone();
 	}
 }

@@ -1,3 +1,5 @@
+//Github URL:https://github.com/May24th/JiuChess.git
+
 package control;
 
 import model.Board;
@@ -37,26 +39,5 @@ public class Main {
 //    	display();
 //	}
     
-    
-    public static void display() {
-		String c = "E";
-		for(int i = 1; i <= Board.maxIndex; i++) {
-			System.out.printf("%2d ",i);
-			for(int j = 1; j <= Board.maxIndex; j++) {
-				if(Board.getBoard(i, j) == Board.EMPTY) c = "·";
-				if(Board.getBoard(i, j) == Board.ENEMY) c = "○";
-				if(Board.getBoard(i, j) == Board.SELF) c = "●";
-				System.out.print(c + " ");
-			}
-			System.out.println();
-		}
-		System.out.print("   ");
-		for(int j = 0; j < Board.maxIndex; j++) {
-			System.out.print((char)(j + 'A') + " ");
-		}
-		System.out.println();
-		System.out.println();
-		System.out.println();
-	}
     
 }

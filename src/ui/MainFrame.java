@@ -44,7 +44,7 @@ public class MainFrame extends JFrame {
 	    //开局
   		Open.init();
   		mainPanel.rightText.messageArea.append("初始化完成！\n");
-  		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------行棋阶段------------\n");
+  		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------布局阶段------------\n");
   		mainPanel.rightText.qipuArea.append("W1：4D\n");
   		mainPanel.rightText.qipuArea.append("B2：5E\n");
   		
@@ -67,15 +67,15 @@ public class MainFrame extends JFrame {
   		
 	}
 	
-	public static final int boardSize = 8;
+	public static final int boardSize = 4;
 	static final int FrameSizeW = 900;
 	static final int FrameSizeH = 900;
 	
 	
 	public ChessState state;
 	public int rotateA = 0;					//0代表原始，1~3代表顺时针旋转90°~270°
-	public Color enemyColor = Color.black;
-	public Color selfColor = Color.white;
+	public Color enemyColor = Color.white;
+	public Color selfColor = Color.black;
 	
 	//组件
 	public conPane mainPanel;
@@ -148,10 +148,10 @@ public class MainFrame extends JFrame {
 	 * 用于restart
 	 */
 	public void mainframeInit() {
-		state = new ChessState();
 		rotateA = 0;
 		enemyColor = Color.black;
 		selfColor = Color.white;
+		state = new ChessState();
 	}
 	
 	/**

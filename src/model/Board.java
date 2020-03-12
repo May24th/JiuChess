@@ -1,5 +1,6 @@
  package model;
 
+import test.ErrorTracker;
 import ui.MainFrame;
 
 public class Board {
@@ -38,6 +39,13 @@ public class Board {
 		}
 		else System.out.println("设置点在棋盘外了");
 		
+		
+		//test
+		if(x == 2 && y == 3) {
+			for(int i = 0;i < 5 ;i ++) {
+				System.out.println(ErrorTracker.getTestMessage(i));
+			}
+		}
 	}
 	
 	public static void setBoard(int[][] temp) {
@@ -81,8 +89,8 @@ public class Board {
 			System.out.print((char)(i + 'A' - 1) + " ");
 			for(int j = 1; j <= maxIndex; j++) {
 				if(board[j][i] == EMPTY) c = "·";
-				if(board[j][i] == ENEMY) c = "○";
-				if(board[j][i] == SELF) c = "●";
+				if(board[j][i] == ENEMY) c = "●";
+				if(board[j][i] == SELF) c = "○";
 				System.out.print(c + " ");
 			}
 			System.out.println();

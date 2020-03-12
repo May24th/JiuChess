@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Label;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -88,9 +90,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		  			qipuText.append((enemyColor == Color.black? "B":"W") + state.addition +
 		  					"：" + a.x + (char)(a.y - 1 + 'A') + "\n");
 		  			
-		  			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-		  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-		  					"，空子数：" + state.emptyPiece + "。");
+		  			bottomUpDate();
 		  			
 		  			if(state.emptyPiece > 0) {											//还在开局
 		  				//电脑下
@@ -106,9 +106,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		  	  			state.emptyPiece --;
 		  	  			qipuText.append((selfColor == Color.black? "B":"W") + state.addition +
 		  	  					"：" + tArrayList.get(a1).x + (char)(tArrayList.get(a1).y - 1 + 'A') + "\n");
-			  	  		bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-			  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-			  					"，空子数：" + state.emptyPiece + "。");
+			  	  		bottomUpDate();
 			  	  		
 			  	  		if(state.emptyPiece == 0) {										//进入行棋阶段(电脑先下)
 			  	  			
@@ -135,9 +133,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				  			state.selfPiece --;
 				  			state.emptyPiece ++;
 				  			state.emptyPiece ++;
-				  			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-				  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-				  					"，空子数：" + state.emptyPiece + "。");
+				  			bottomUpDate();
 				  			qipuText.append("------------行棋阶段------------\n");
 			  	  			mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
 			  	  			
@@ -168,7 +164,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			  				ArrayList<Point> eat = bat.getEatPoint();
 			  				ArrayList<Point> feat = bat.getfangEatPoint();
 			  				if(!eat.isEmpty()) {
-			  					qipuText.append("TC:");
+			  					qipuText.append("TC：");
 			  					for(Point i : eat) {
 			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
 			  						Board.setBoard(i.x,i.y, Board.EMPTY);
@@ -181,7 +177,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			  				}
 			  				
 			  				if(!feat.isEmpty()) {
-			  					qipuText.append("FC:");
+			  					qipuText.append("FC：");
 			  					for(Point i : feat) {
 			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
 			  						Board.setBoard(i.x,i.y, Board.EMPTY);
@@ -192,10 +188,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			  					}
 			  					qipuText.append("\n");
 			  				}
-			  				bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-				  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-				  					"，空子数：" + state.emptyPiece + "。");
-			  				mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\\n");
+			  				bottomUpDate();
 			  				state.eatStage = EatStage.SELECTING;
 			  				state.round = Round.ENEMY;
 			  				
@@ -231,9 +224,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			  			state.selfPiece --;
 			  			state.emptyPiece ++;
 			  			state.emptyPiece ++;
-			  			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-			  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-			  					"，空子数：" + state.emptyPiece + "。");
+			  			bottomUpDate();
 			  			qipuText.append("------------行棋阶段------------\n");
 			  			mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\n");
 			  			
@@ -260,7 +251,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 							//jumpEat
 							state.selfPiece --;
 							Point a1 = state.getSelectPiece();
-							Point a2 = new Point(previewPiece.getlocX(), previewPiece.getlocX());
+							Point a2 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
 							formalPiece[a1.x][a1.y].setEmpty();
 							formalPiece[(a1.x + a2.x)/2][(a1.y + a2.y)/2].setEmpty();
 							formalPiece[a2.x][a2.y].setPiece(enemyColor);
@@ -274,7 +265,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 							state.eatStage = EatStage.JUMPINGJ;
 							owner.mainPanel.leftButton.endEating.setVisible(true);
 							mesText.append("您选择跳吃，若想结束跳吃，请点击左边的“结束跳吃”按钮\n");
-							qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + a1.x + (char)('A' + a1.y - 1) + "->" + a2.x + (char)('A' + a2.y - 1) + "\n");
+							qipuText.append((enemyColor == Color.white?"W":"B") + state.addition + "：" + a1.x + (char)('A' + a1.y - 1) + "->" + a2.x + (char)('A' + a2.y - 1) + "\n");
 							state.tempTC.add(new Point((a1.x + a2.x)/2, (a1.y + a2.y)/2));
 						}
 						else if (previewPiece.getlocX() == state.getSelectPiece().x && previewPiece.getlocY() == state.getSelectPiece().y) {
@@ -286,24 +277,75 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						else {
 							//move
 							Point a1 = state.getSelectPiece();
-							Point a2 = new Point(previewPiece.getlocX(), previewPiece.getlocX());
+							Point a2 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
 							formalPiece[a1.x][a1.y].setEmpty();
 							formalPiece[a2.x][a2.y].setPiece(enemyColor);
+							int add = 0;
+							if(getPieceState(a2.x, a2.y + 1) == Board.ENEMY && getPieceState(a2.x + 1, a2.y + 1) == Board.ENEMY && getPieceState(a2.x + 1, a2.y) == Board.ENEMY) add++;
+							if(getPieceState(a2.x, a2.y - 1) == Board.ENEMY && getPieceState(a2.x + 1, a2.y - 1) == Board.ENEMY && getPieceState(a2.x + 1, a2.y) == Board.ENEMY) add++;
+							if(getPieceState(a2.x, a2.y - 1) == Board.ENEMY && getPieceState(a2.x - 1, a2.y - 1) == Board.ENEMY && getPieceState(a2.x - 1, a2.y) == Board.ENEMY) add++;
+							if(getPieceState(a2.x, a2.y + 1) == Board.ENEMY && getPieceState(a2.x - 1, a2.y + 1) == Board.ENEMY && getPieceState(a2.x - 1, a2.y) == Board.ENEMY) add++;
+							
 							
 							a1 = transToBack(a1);
 							a2 = transToBack(a2);
 							Board.setBoard(a1.x,a1.y,Board.EMPTY);
 							Board.setBoard(a2.x,a2.y,Board.ENEMY);
-							qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + a1.x + (char)('A' + a1.y - 1) + "->" + a2.x + (char)('A' + a2.y - 1) + "\n");
-							state.round = Round.SELF;
-							mesText.setText("行棋阶段：\\n轮到电脑下！\\n请等待...\\n");
+							qipuText.append((enemyColor == Color.white?"W":"B") + state.addition + "：" + a1.x + (char)('A' + a1.y - 1) + "->" + a2.x + (char)('A' + a2.y - 1) + "\n");
+							
+							if(add == 0) {
+								state.round = Round.SELF;
+								mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
+							}
+							else {
+								mesText.append("您可以方吃" + add + "颗子！");
+								state.eatStage = EatStage.FANGEATING;
+								state.FangEatNum = add;
+								qipuText.append("FC：");
+							}
+							
 						}
+						bottomUpDate();
 						break;
 					case JUMPINGJ:
+						//继续jumpEat
+						state.selfPiece --;
+						Point a1 = state.getSelectPiece();
+						Point a2 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+						formalPiece[a1.x][a1.y].setEmpty();
+						formalPiece[(a1.x + a2.x)/2][(a1.y + a2.y)/2].setEmpty();
+						formalPiece[a2.x][a2.y].setPiece(enemyColor);
+						state.setSelectPiece(a2.x, a2.y);
 						
+						a1 = transToBack(a1);
+						a2 = transToBack(a2);
+						Board.setBoard(a1.x,a1.y,Board.EMPTY);
+						Board.setBoard(a2.x,a2.y,Board.ENEMY);
+						Board.setBoard((a1.x + a2.x)/2, (a1.y + a2.y)/2, Board.EMPTY);
+						mesText.append("若想结束跳吃，请点击左边的“结束跳吃”按钮\n");
+						qipuText.append("->" + a2.x + (char)('A' + a2.y - 1) + "\n");
+						state.tempTC.add(new Point((a1.x + a2.x)/2, (a1.y + a2.y)/2));
+						bottomUpDate();
 						break;
 					case FANGEATING:
+						state.selfPiece --;
+						Point a3 = new Point(previewPiece.getlocX(),previewPiece.getlocY());
+						formalPiece[a3.x][a3.y].setEmpty();
+						a3 = transToBack(a3);
+						Board.setBoard(a3.x,a3.y,Board.EMPTY);
+						state.FangEatNum --;
+						qipuText.append(a3.x + (char)(64 + a3.y) + " ");
 						
+						if(state.FangEatNum == 0)
+						{
+							//方吃结束
+							qipuText.append("\n");
+							state.round = Round.SELF;
+						}
+						else {
+							mesText.append("您还有" + state.FangEatNum + "颗子可以吃！");
+						}
+						bottomUpDate();
 						break;
 					case FLYMOVE:
 						
@@ -311,128 +353,10 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					default:
 						break;
 					}
+					Board.display();
+					
 					if(state.round == Round.SELF) {
-						if(state.selfPiece > MainFrame.boardSize)
-						{
-							//正常跳吃
-			  	  			state.addition ++;
-			  	  			BestEat bat = new BestEat();
-			  	  			//初始点
-			  				Point p = bat.getBestPoint();
-			  				Board.setBoard(p.x, p.y, Board.EMPTY);
-			  				Point a = transToFront(p);
-			  				formalPiece[a.x][a.y].setEmpty();
-			  				
-
-			  				qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + p.x + (char)('A' + p.y - 1));
-			  				
-			  				Point last = null;
-			  				for(Point i : bat.getPastPoint()) {
-			  					qipuText.append("->" + i.x + (char)('A' + i.y - 1));
-			  					last = i;
-			  				}
-
-			  				qipuText.append("\n");
-			  				Board.setBoard(last.x, last.y, Board.SELF);
-			  				a = transToFront(last);
-			  				formalPiece[a.x][a.y].setPiece(selfColor);
-			  				
-			  				
-			  				ArrayList<Point> eat = bat.getEatPoint();
-			  				ArrayList<Point> feat = bat.getfangEatPoint();
-			  				if(!eat.isEmpty()) {
-			  					qipuText.append("TC:");
-			  					for(Point i : eat) {
-			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
-			  						Board.setBoard(i.x,i.y, Board.EMPTY);
-			  						a = transToFront(i);
-			  						formalPiece[a.x][a.y].setEmpty();
-			  						state.enemyPiece --;
-			  						state.emptyPiece ++;
-			  					}
-			  					qipuText.append("\n");
-			  				}
-			  				
-			  				if(!feat.isEmpty()) {
-			  					qipuText.append("FC:");
-			  					for(Point i : feat) {
-			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
-			  						Board.setBoard(i.x,i.y, Board.EMPTY);
-			  						a = transToFront(i);
-			  						formalPiece[a.x][a.y].setEmpty();
-			  						state.enemyPiece --;
-			  						state.emptyPiece ++;
-			  					}
-			  					qipuText.append("\n");
-			  				}
-			  				bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-				  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-				  					"，空子数：" + state.emptyPiece + "。");
-			  				mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\\n");
-			  				state.eatStage = EatStage.SELECTING;
-			  				state.round = Round.ENEMY;
-							
-						}
-						else {
-							//飞子
-							//行棋第一步
-			  	  			state.addition ++;
-			  	  			FlyStep bat = new FlyStep();
-			  	  			//初始点
-			  				Point p = bat.getBestPoint();
-			  				Board.setBoard(p.x, p.y, Board.EMPTY);
-			  				Point a = transToFront(p);
-			  				formalPiece[a.x][a.y].setEmpty();
-			  				
-
-			  				qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + p.x + (char)('A' + p.y - 1));
-			  				
-			  				Point last = null;
-			  				for(Point i : bat.getPastPoint()) {
-			  					qipuText.append("->" + i.x + (char)('A' + i.y - 1));
-			  					last = i;
-			  				}
-
-			  				qipuText.append("\n");
-			  				Board.setBoard(last.x, last.y, Board.SELF);
-			  				a = transToFront(last);
-			  				formalPiece[a.x][a.y].setPiece(selfColor);
-			  				
-			  				
-			  				ArrayList<Point> eat = bat.getEatPoint();
-			  				ArrayList<Point> feat = bat.getfangEatPoint();
-			  				if(!eat.isEmpty()) {
-			  					qipuText.append("TC:");
-			  					for(Point i : eat) {
-			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
-			  						Board.setBoard(i.x,i.y, Board.EMPTY);
-			  						a = transToFront(i);
-			  						formalPiece[a.x][a.y].setEmpty();
-			  						state.enemyPiece --;
-			  						state.emptyPiece ++;
-			  					}
-			  					qipuText.append("\n");
-			  				}
-			  				
-			  				if(!feat.isEmpty()) {
-			  					qipuText.append("FC:");
-			  					for(Point i : feat) {
-			  						qipuText.append("  " + i.x + (char)('A' + i.y - 1));
-			  						Board.setBoard(i.x,i.y, Board.EMPTY);
-			  						a = transToFront(i);
-			  						formalPiece[a.x][a.y].setEmpty();
-			  						state.enemyPiece --;
-			  						state.emptyPiece ++;
-			  					}
-			  					qipuText.append("\n");
-			  				}
-			  				bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
-				  					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
-				  					"，空子数：" + state.emptyPiece + "。");
-			  				mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\\n");
-			  				state.eatStage = EatStage.SELECTING;
-			  				state.round = Round.ENEMY;
-						}
+						selfJumpEat();
 					}
 					
 				}//行棋阶段结束
@@ -469,17 +393,23 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						if(state.eatStage == EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
+							l1.setText("x = " + previewPiece.getlocX());
+							l2.setText("y = " + previewPiece.getlocY());
 							previewPiece.setVisible(true);
 						}
 						else if(state.eatStage == EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
+							l1.setText("x = " + previewPiece.getlocX());
+							l2.setText("y = " + previewPiece.getlocY());
 							previewPiece.setVisible(true);
 						}
 						else if((state.eatStage == EatStage.JUMPING || state.eatStage == EatStage.FLYMOVE) && ti == state.getSelectPiece().x && tj == state.getSelectPiece().y){
 							//取消
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
+							l1.setText("x = " + previewPiece.getlocX());
+							l2.setText("y = " + previewPiece.getlocY());
 							previewPiece.setVisible(true);
 						}
 						else previewPiece.setVisible(false);
@@ -495,8 +425,55 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		formalPiece[gridrow / 2][gridrow / 2].setPiece(selfColor);
 		formalPiece[gridrow / 2 + 1][gridrow / 2 + 1].setPiece(enemyColor);
 
-		
-		
+		//设置按钮的监听器
+		ActionListener huiqiActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		};
+		ActionListener rotListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		};
+		ActionListener endActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				qipuText.append("TC：");
+				for(Point i : state.tempTC) {
+					qipuText.append(i.x + String.valueOf((char)(64 + i.y)) + " ");
+				}
+				qipuText.append("\n");
+				state.tempTC.clear();
+				
+				owner.mainPanel.leftButton.endEating.setVisible(false);
+				Point temp = state.getSelectPiece(); 
+				int add = 0;
+				if(getPieceState(temp.x, temp.y + 1) == Board.ENEMY && getPieceState(temp.x + 1, temp.y + 1) == Board.ENEMY && getPieceState(temp.x + 1, temp.y) == Board.ENEMY) add++;
+				if(getPieceState(temp.x, temp.y - 1) == Board.ENEMY && getPieceState(temp.x + 1, temp.y - 1) == Board.ENEMY && getPieceState(temp.x + 1, temp.y) == Board.ENEMY) add++;
+				if(getPieceState(temp.x, temp.y - 1) == Board.ENEMY && getPieceState(temp.x - 1, temp.y - 1) == Board.ENEMY && getPieceState(temp.x - 1, temp.y) == Board.ENEMY) add++;
+				if(getPieceState(temp.x, temp.y + 1) == Board.ENEMY && getPieceState(temp.x - 1, temp.y + 1) == Board.ENEMY && getPieceState(temp.x - 1, temp.y) == Board.ENEMY) add++;
+				if(add == 0) {
+					//没成方，结束己方下棋
+					mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
+					selfJumpEat();
+				}
+				else {
+					mesText.append("您可以方吃" + add + "颗子！");
+					state.FangEatNum = add;
+					state.eatStage = EatStage.FANGEATING;
+					qipuText.append("FC：");
+				}
+			}
+		};
+		parentComponent.leftButton.huiqi.addActionListener(huiqiActionListener);
+		parentComponent.leftButton.rotButton.addActionListener(rotListener);
+		parentComponent.leftButton.endEating.addActionListener(endActionListener);
+	
+	
+	
 	}
 	
 	
@@ -577,15 +554,155 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 	public void mouseMoved(MouseEvent e) {
 		int px = e.getX() - letterSize - marginWidth;
 		int py = e.getY() - marginWidth;
-		l1.setText("x = " + String.valueOf(px));
-		l2.setText("y = " + String.valueOf(py));
+//		l1.setText("x = " + String.valueOf(px));
+//		l2.setText("y = " + String.valueOf(py));
 		if(isTempVisible(e.getX(), e.getY())) {
 			previewPiece.setLocation(px/gridSize * gridSize + letterSize + marginWidth, py/gridSize * gridSize + marginWidth);
 			previewPiece.setloc(px/gridSize + 1, py/gridSize + 1);		//若没旋转棋面
+			l1.setText("x = " + previewPiece.getlocX());
+			l2.setText("y = " + previewPiece.getlocY());
 			previewPiece.setVisible(true);
 		}
 		else previewPiece.setVisible(false);
 	}
+	
+	/**
+	 * 跳吃和飞子结合的情况下
+	 * 面向过程
+	 */
+	private void selfJumpEat() {
+		if(state.selfPiece > MainFrame.boardSize)
+		{
+			//正常跳吃
+  			state.addition ++;
+  			BestEat bat = new BestEat();
+  			//初始点
+			Point p = bat.getBestPoint();
+			Board.setBoard(p.x, p.y, Board.EMPTY);
+			Point a = transToFront(p);
+			formalPiece[a.x][a.y].setEmpty();
+			
+
+			qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + p.x + (char)('A' + p.y - 1));
+			
+			Point last = null;
+			for(Point i : bat.getPastPoint()) {
+				qipuText.append("->" + i.x + (char)('A' + i.y - 1));
+				last = i;
+			}
+
+			qipuText.append("\n");
+			Board.setBoard(last.x, last.y, Board.SELF);
+			a = transToFront(last);
+			formalPiece[a.x][a.y].setPiece(selfColor);
+			
+			
+			ArrayList<Point> eat = bat.getEatPoint();
+			ArrayList<Point> feat = bat.getfangEatPoint();
+			if(!eat.isEmpty()) {
+				qipuText.append("TC：");
+				for(Point i : eat) {
+					qipuText.append("  " + i.x + (char)('A' + i.y - 1));
+					Board.setBoard(i.x,i.y, Board.EMPTY);
+					a = transToFront(i);
+					formalPiece[a.x][a.y].setEmpty();
+					state.enemyPiece --;
+					state.emptyPiece ++;
+				}
+				qipuText.append("\n");
+			}
+			
+			if(!feat.isEmpty()) {
+				qipuText.append("FC：");
+				for(Point i : feat) {
+					qipuText.append("  " + i.x + (char)('A' + i.y - 1));
+					Board.setBoard(i.x,i.y, Board.EMPTY);
+					a = transToFront(i);
+					formalPiece[a.x][a.y].setEmpty();
+					state.enemyPiece --;
+					state.emptyPiece ++;
+				}
+				qipuText.append("\n");
+			}
+			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+				"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+				"，空子数：" + state.emptyPiece + "。");
+			mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\n");
+			state.eatStage = EatStage.SELECTING;
+			state.round = Round.ENEMY;
+			
+		}
+		else {
+			//飞子
+  			state.addition ++;
+  			FlyStep bat = new FlyStep();
+  			//初始点
+			Point p = bat.getBestPoint();
+			Board.setBoard(p.x, p.y, Board.EMPTY);
+			Point a = transToFront(p);
+			formalPiece[a.x][a.y].setEmpty();
+			
+
+			qipuText.append((selfColor == Color.white?"W":"B") + state.addition + "：" + p.x + (char)('A' + p.y - 1));
+			
+			Point last = null;
+			for(Point i : bat.getPastPoint()) {
+				qipuText.append("->" + i.x + (char)('A' + i.y - 1));
+				last = i;
+			}
+
+			qipuText.append("\n");
+			Board.setBoard(last.x, last.y, Board.SELF);
+			a = transToFront(last);
+			formalPiece[a.x][a.y].setPiece(selfColor);
+			
+			
+			ArrayList<Point> eat = bat.getEatPoint();
+			ArrayList<Point> feat = bat.getfangEatPoint();
+			if(!eat.isEmpty()) {
+				qipuText.append("TC：");
+				for(Point i : eat) {
+					qipuText.append("  " + i.x + (char)('A' + i.y - 1));
+					Board.setBoard(i.x,i.y, Board.EMPTY);
+					a = transToFront(i);
+					formalPiece[a.x][a.y].setEmpty();
+					state.enemyPiece --;
+					state.emptyPiece ++;
+				}
+				qipuText.append("\n");
+			}
+			
+			if(!feat.isEmpty()) {
+				qipuText.append("FC：");
+				for(Point i : feat) {
+					qipuText.append("  " + i.x + (char)('A' + i.y - 1));
+					Board.setBoard(i.x,i.y, Board.EMPTY);
+					a = transToFront(i);
+					formalPiece[a.x][a.y].setEmpty();
+					state.enemyPiece --;
+					state.emptyPiece ++;
+				}
+				qipuText.append("\n");
+			}
+			bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+				"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+				"，空子数：" + state.emptyPiece + "。");
+			mesText.setText("行棋阶段：\n轮到你了！\n请选择要走的棋子\n");
+			state.eatStage = EatStage.SELECTING;
+			state.round = Round.ENEMY;
+		}
+		bottomUpDate();
+	}
+	
+	/**
+	 * 刷新底部棋子数的状态
+	 */
+	private void bottomUpDate() {
+		bottom.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+					"，空子数：" + state.emptyPiece + "。");
+	}
+	
 	
 	
 	/**
@@ -605,37 +722,6 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 			int piecestate = getPieceState(tempPoint.x, tempPoint.y);
 			
 			
-//			//V1 有点慢，有点麻烦
-//			if(state.stage == Stage.OPEN) {
-//				if(piecestate == Board.EMPTY) return true;
-//				else return false;
-//			}
-//			else {
-//				if(state.eatStage == EatStage.NOTEATING) {
-//					qipuText.append("-------\n" +
-//							ErrorTracker.getTestMessage() +
-//							"ERROR_stage与eatStage不匹配\n" +
-//							"--------\n");
-//					return false;
-//				}
-//				//在选择阶段，选择敌方棋
-//				else if(state.eatStage == EatStage.SELECTING && piecestate == Board.ENEMY) return true;
-//				//在跳棋阶段，可行的空点
-//				else if(state.eatStage == EatStage.JUMPING && piecestate == Board.EMPTY) 
-//				{
-//					Point temp = ownerFrame.state.getJumpPiece();
-//					if(
-//							(temp.x == tempPoint.x && temp.y == tempPoint.y + 2 && getPieceState(temp.x, temp.y + 1) == Board.SELF)||
-//							(temp.x == tempPoint.x && temp.y == tempPoint.y - 2 && getPieceState(temp.x, temp.y - 1) == Board.SELF)||
-//							(temp.x == tempPoint.x + 2 && temp.y == tempPoint.y && getPieceState(temp.x + 1, temp.y) == Board.SELF)||
-//							(temp.x == tempPoint.x - 2 && temp.y == tempPoint.y && getPieceState(temp.x - 1, temp.y) == Board.SELF)
-//					) return true;
-//				}
-//				//方吃阶段，选择了我方棋子
-//				else if(state.eatStage == EatStage.FANGEATING && piecestate == Board.SELF) return true;
-//			}
-			
-			
 			//V2 简单粗暴
 			if (piecestate != Board.EMPTY) return false;
 			else {
@@ -651,10 +737,10 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				else if(state.eatStage == EatStage.JUMPING) {
 					Point JumpPiecetemp = state.getSelectPiece();
 					if(
-							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y - 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y - 1) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x + 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x + 1, JumpPiecetemp.y) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x - 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x - 1, JumpPiecetemp.y) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y - 1) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y - 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x + 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x - 1, JumpPiecetemp.y) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x - 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x + 1, JumpPiecetemp.y) == Board.SELF)||
 							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 1 )||
 							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y - 1 )||
 							(JumpPiecetemp.x == tempPoint.x + 1 && JumpPiecetemp.y == tempPoint.y )||
@@ -664,10 +750,10 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				else if(state.eatStage == EatStage.JUMPINGJ) {
 					Point JumpPiecetemp = state.getSelectPiece();
 					if(
-							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y - 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y - 1) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x + 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x + 1, JumpPiecetemp.y) == Board.SELF)||
-							(JumpPiecetemp.x == tempPoint.x - 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x - 1, JumpPiecetemp.y) == Board.SELF)
+							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y + 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y - 1) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x && JumpPiecetemp.y == tempPoint.y - 2 && getPieceState(JumpPiecetemp.x, JumpPiecetemp.y + 1) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x + 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x - 1, JumpPiecetemp.y) == Board.SELF)||
+							(JumpPiecetemp.x == tempPoint.x - 2 && JumpPiecetemp.y == tempPoint.y && getPieceState(JumpPiecetemp.x + 1, JumpPiecetemp.y) == Board.SELF)
 							
 					) return true;
 				}

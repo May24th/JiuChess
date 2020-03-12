@@ -76,7 +76,8 @@ public class SelfScore {
 				//左右两个点都是空的情况
 				//两个点都做一下反吃子分析
 				int a = 0;
-				Board.setBoard(x, y, Board.EMPTY);
+				int t = Board.getBoard(x, y);
+				Board.setBoard(x, y, Board.EMPTY);					//
 				
 				Board.setBoard(x + 1, y, Board.ENEMY);
 				a = abEat(x + 1, y);
@@ -86,7 +87,7 @@ public class SelfScore {
 				a += abEat(x - 1, y);
 				Board.setBoard(x - 1, y, Board.EMPTY);
 				
-				Board.setBoard(x, y, Board.SELF);
+				Board.setBoard(x, y, t);							//
 				if(a > 0)return 1;
 			}
 		}
@@ -103,7 +104,8 @@ public class SelfScore {
 			else if(Board.getBoard(x,y - 1) == Board.EMPTY) {
 				//两个点都做一下反吃子分析
 				int a = 0;
-				Board.setBoard(x, y, Board.EMPTY);
+				int t = Board.getBoard(x, y);
+				Board.setBoard(x, y, Board.EMPTY);					//
 				
 				Board.setBoard(x, y + 1, Board.ENEMY);
 				a = abEat(x, y + 1);
@@ -113,7 +115,7 @@ public class SelfScore {
 				a += abEat(x, y - 1);
 				Board.setBoard(x, y - 1, Board.EMPTY);
 				
-				Board.setBoard(x, y, Board.SELF);
+				Board.setBoard(x, y, t);							//
 				if(a > 0)return 1;
 			}
 		}

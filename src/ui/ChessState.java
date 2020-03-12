@@ -14,6 +14,7 @@ public class ChessState {
 		selfPiece = 1;
 		emptyPiece = MainFrame.boardSize * MainFrame.boardSize - 2;
 		addition = 2;
+		tempTC = new ArrayList<Point>();
 	}
 	
 	/**阶段：开局，吃子*/
@@ -47,7 +48,7 @@ public class ChessState {
 	public int emptyPiece;
 	/**记录回合数*/
 	public int addition;
-	/**已选择的跳吃的点，暂时储存*/
+	/**已选择的跳吃的点，暂时储存，前端的值*/
 	private Point jumpPiece;
 	/**暂存方吃的数量*/
 	public int FangEatNum;

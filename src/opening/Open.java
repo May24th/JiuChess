@@ -7,8 +7,8 @@ import model.Point;
 
 public class Open {
 	
-	public static final int attackBase = 32;	//暂无用
-	public static final int defenseBase = 1;	//暂无用
+	public static final int attackBase = 32;	
+	public static final int defenseBase = 1;	
 
 	public static final int defenseEL = 6;
 //	private final int attackEL = 100;
@@ -25,6 +25,7 @@ public class Open {
 		Attack.init();
 	}
 	
+	//有问题
 	public static void play(int x, int y, int piece) {
 		Board.setBoard(x, y, piece);
 		Defend.twoCheck(x, y, piece);
@@ -161,14 +162,15 @@ public class Open {
 			{
 				ArrayList<Point> bestPoints = new ArrayList<Point>();
 				int max = 0;		
-				for(int i = 0; i < defenses.size(); i++){
-					int temp = Attack.getAttackScores(defenses.get(i).x, defenses.get(i).y);
-					if(temp > 0 && temp > max) {
+				for(Point i : defenses){
+					int temp = Attack.getAttackScores(i.x, i.y);
+					if(temp > max) {
 						max = temp;
 						bestPoints.clear();
-						bestPoints.add(new Point(defenses.get(i).x, defenses.get(i).y));
-					} else if(temp == max) {
-						bestPoints.add(new Point(defenses.get(i).x, defenses.get(i).y));
+						bestPoints.add(new Point(i.x, i.y));
+					} 
+					else if(temp == max) {
+						bestPoints.add(new Point(i.x, i.y));
 					}
 				}
 				return bestPoints;
@@ -178,18 +180,21 @@ public class Open {
 		int max = 0;
 		for(int i = 1;i <= Board.maxIndex;i ++) {
 			for(int j = 1;j <= Board.maxIndex;j ++) {
-				int attackTemp = 0;
-				int defenseTemp = 0;
-				int Temp = 0;
-				if(Attack.getAttackScores(i, j) > 0) attackTemp = Attack.getAttackScores(i, j);
-				if(Defend.getDefenseScore(i,j) > 0) defenseTemp = Defend.getDefenseScore(i,j);
-				if(max < (Temp = attackTemp*attackPower + defenseTemp*defensePower)) {
-					max = Temp;
-					bestPoints.clear();
-					bestPoints.add(new Point(i, j, Temp));
-				} else if(Temp == max) {
+				if(Board.getBoard(i,j) == Board.EMPTY) {
+					int attackTemp = 0;
+					int defenseTemp = 0;
+					if(Attack.getAttackScores(i, j) > 0) attackTemp = Attack.getAttackScores(i, j);
+					if(Defend.getDefenseScore(i,j) > 0) defenseTemp = Defend.getDefenseScore(i,j);
+					int Temp = attackTemp*attackPower + defenseTemp*defensePower;
+					if(max < Temp) {
+						max = Temp;
+						bestPoints.clear();
 						bestPoints.add(new Point(i, j, Temp));
+					} else if(Temp == max) {
+							bestPoints.add(new Point(i, j, Temp));
+					}
 				}
+				
 			}
 		}
 		

@@ -209,7 +209,7 @@ public class JumpEat {
 		if(flag == 0) {
 			//如果不能跳吃
 			if (maxScore < presentScore) {
-				//找到更好的点了
+				//找到更好的点了，即当前点是最好的点
 				maxScore = presentScore;
 				bestEat.clear();
 				bestEat.add(new ArrayList<Integer>());
@@ -229,7 +229,7 @@ public class JumpEat {
 		else {
 			//如果能跳吃
 			if (maxScore < presentScore) {
-				//当前即最优解，跳吃无意义
+				//当前即最优解（没有之一），跳吃无意义
 				maxScore = presentScore;
 				bestEat.clear();
 				bestEat.add(new ArrayList<Integer>());
@@ -237,17 +237,18 @@ public class JumpEat {
 				return 0;
 			}
 			else if(maxScore == presentScore) {
-				//当前即最优解，跳吃其中一项和当前分数相同
 				if(maxScore == premax) {
+					//当前即最优解之一，跳吃其中一项和当前分数相同，爱吃不吃
 					bestEat.add(new ArrayList<Integer>());
 					int size = bestEat.size() - 1;
-					bestEat.get(size).add(preDirect);
 					bestEat.get(preIt).add(-1);
 					bestEat.get(preIt).add(size);
 					bestEat.get(preIt).add(bestEat.get(size).size());
+					bestEat.get(size).add(preDirect);
 					return size;
 				}
 				else {
+					//premax < maxscore 能跳吃，但跳吃分数太低，导致premax没被赋值，此时此节点不错
 					bestEat.add(new ArrayList<Integer>());
 					int size = bestEat.size() - 1;
 					bestEat.get(size).add(preDirect);
@@ -260,7 +261,7 @@ public class JumpEat {
 					return -1;
 				}
 				else {
-					//找到，做常规记录
+					//是最优解中的中间部分，做常规记录
 					bestEat.get(preIt).add(preDirect);
 					return preIt;
 				}
@@ -330,6 +331,21 @@ public class JumpEat {
 				i = bestEat.get(o).get(j + 1);
 				j = bestEat.get(o).get(j + 2);
 			}
+//			//检查BUG
+//			try {
+//				bestEat.get(i).get(j);
+//			}
+//			catch (IndexOutOfBoundsException e) {
+//				System.out.println("i = " + i + ",j = " + j);
+//				System.out.println();
+//				Board.display();
+//				for(ArrayList<Integer> x: bestEat) {
+//					for(Integer y : x) {
+//						System.out.print(y);
+//					}
+//					System.out.println();
+//				}
+//			}
 		}
 		Collections.reverse(best);
 	}

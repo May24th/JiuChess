@@ -2,7 +2,6 @@
 
 package control;
 
-import model.Board;
 import ui.MainFrame;
 
 public class Main {

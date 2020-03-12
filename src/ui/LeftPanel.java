@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -48,7 +50,6 @@ public class LeftPanel extends JPanel{
 	
 	private int sizeH = buttonH * 4 + buttonInterval * 3;
 	private int sizeW = buttonW;
-	
 	
 	
 }

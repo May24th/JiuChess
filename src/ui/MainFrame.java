@@ -45,8 +45,8 @@ public class MainFrame extends JFrame {
   		Open.init();
   		mainPanel.rightText.messageArea.append("初始化完成！\n");
   		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------布局阶段------------\n");
-  		mainPanel.rightText.qipuArea.append("W1：4D\n");
-  		mainPanel.rightText.qipuArea.append("B2：5E\n");
+  		mainPanel.rightText.qipuArea.append("W1：" + boardSize/2 + (char)(boardSize/2 +'A' - 1) +"\n");
+  		mainPanel.rightText.qipuArea.append("B2：" + (boardSize/2 + 1) + (char)(boardSize/2 +'A') + "\n");
   		
   		if(selfColor == Color.white) {
   			mainPanel.rightText.messageArea.setText("布局阶段：\n轮到电脑下！\n请等待...\n");

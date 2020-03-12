@@ -53,5 +53,14 @@ public class ErrorTracker {
 	    			"\n当前行数为：" + e.getLineNumber() + "\n";
 		return a;
 	}
+	
+	public static String getTestMessage(int x) {
+		StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+	    StackTraceElement e = stacktrace[2 + x];
+	    String a = "当前文件名为：" + e.getFileName() +
+	    			"\n当前方法名为：" + e.getMethodName() +
+	    			"\n当前行数为：" + e.getLineNumber() + "\n";
+		return a;
+	}
     
 }

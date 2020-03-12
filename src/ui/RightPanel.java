@@ -30,6 +30,7 @@ public class RightPanel extends JPanel{
 //		messageArea.setEditable(false);
 		messageArea.setBackground(Color.yellow);
 		messageArea.setLineWrap(true);
+		messageArea.setFont(tempfont);
 		JScrollPane messageJScrollPane = new JScrollPane(messageArea);
 		messageJScrollPane.setBounds(0, LabelH + areaIntervel, sizeW, messageAreaH);
 		
@@ -43,6 +44,7 @@ public class RightPanel extends JPanel{
 //		qipuArea.setEditable(false);
 		qipuArea.setBackground(Color.yellow);
 		qipuArea.setLineWrap(true);
+		qipuArea.setFont(tempfont);
 		JScrollPane qipuJScrollPane = new JScrollPane(qipuArea);
 		qipuJScrollPane.setBounds(0, LabelH*2 + areaIntervel*3 + messageAreaH, sizeW, qipuAreaH);
 		
@@ -55,7 +57,7 @@ public class RightPanel extends JPanel{
 	
 	public final static int LabelH = 50;
 	public final static int messageAreaH = 100;
-	public final static int qipuAreaH = 250;
+	public final static int qipuAreaH = 400;
 	public final static int	areaIntervel = 20;
 	
 	public JTextArea messageArea;

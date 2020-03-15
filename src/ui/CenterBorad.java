@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -334,7 +335,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						a3 = transToBack(a3);
 						Board.setBoard(a3.x,a3.y,Board.EMPTY);
 						state.FangEatNum --;
-						qipuText.append(a3.x + (char)(64 + a3.y) + " ");
+						qipuText.append(a3.x + String.valueOf((char)(64 + a3.y)) + " ");
 						
 						if(state.FangEatNum == 0)
 						{
@@ -348,15 +349,134 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						bottomUpDate();
 						break;
 					case FLYMOVE:
-						
+						Point a6 = state.getSelectPiece();
+						if(
+								(previewPiece.getlocX() == a6.x && previewPiece.getlocY() == a6.y + 2 && getPieceState(a6.x, a6.y + 1) == Board.SELF)||
+								(previewPiece.getlocX() == a6.x && previewPiece.getlocY() == a6.y - 2 && getPieceState(a6.x, a6.y - 1) == Board.SELF)||
+								(previewPiece.getlocX() == a6.x + 2 && previewPiece.getlocY() == a6.y && getPieceState(a6.x + 1, a6.y) == Board.SELF)||
+								(previewPiece.getlocX() == a6.x - 2 && previewPiece.getlocY() == a6.y && getPieceState(a6.x - 1, a6.y) == Board.SELF)
+								) {
+							Object[] a8 = new Object[]{"移动","跳吃"};
+							int a7 = JOptionPane.showOptionDialog(owner, 
+									"请问是跳吃还是移动", 
+									null, 
+									JOptionPane.YES_NO_CANCEL_OPTION, 
+									JOptionPane.QUESTION_MESSAGE, 
+									null, 
+									a8, 
+									null);
+							if(a7 == 1) {
+								//jumpEat
+								state.selfPiece --;
+								Point a4 = state.getSelectPiece();
+								Point a5 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+								formalPiece[a4.x][a4.y].setEmpty();
+								formalPiece[(a4.x + a5.x)/2][(a4.y + a5.y)/2].setEmpty();
+								formalPiece[a5.x][a5.y].setPiece(enemyColor);
+								state.setSelectPiece(a5.x, a5.y);
+								
+								a4 = transToBack(a4);
+								a5 = transToBack(a5);
+								Board.setBoard(a4.x,a4.y,Board.EMPTY);
+								Board.setBoard(a5.x,a5.y,Board.ENEMY);
+								Board.setBoard((a4.x + a5.x)/2, (a4.y + a5.y)/2, Board.EMPTY);
+								state.eatStage = EatStage.JUMPINGJ;
+								owner.mainPanel.leftButton.endEating.setVisible(true);
+								mesText.append("您选择跳吃，若想结束跳吃，请点击左边的“结束跳吃”按钮\n");
+								qipuText.append((enemyColor == Color.white?"W":"B") + state.addition + "：" + a4.x + (char)('A' + a4.y - 1) + "->" + a5.x + (char)('A' + a5.y - 1) + "\n");
+								state.tempTC.add(new Point((a4.x + a5.x)/2, (a4.y + a5.y)/2));
+							}
+							else {
+								//move
+								Point a4 = state.getSelectPiece();
+								Point a5 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+								formalPiece[a4.x][a4.y].setEmpty();
+								formalPiece[a5.x][a5.y].setPiece(enemyColor);
+								int add = 0;
+								if(getPieceState(a5.x, a5.y + 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y + 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y) == Board.ENEMY) add++;
+								if(getPieceState(a5.x, a5.y - 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y - 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y) == Board.ENEMY) add++;
+								if(getPieceState(a5.x, a5.y - 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y - 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y) == Board.ENEMY) add++;
+								if(getPieceState(a5.x, a5.y + 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y + 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y) == Board.ENEMY) add++;
+								
+								
+								a4 = transToBack(a4);
+								a5 = transToBack(a5);
+								Board.setBoard(a4.x,a4.y,Board.EMPTY);
+								Board.setBoard(a5.x,a5.y,Board.ENEMY);
+								qipuText.append((enemyColor == Color.white?"W":"B") + state.addition + "：" + a4.x + (char)('A' + a4.y - 1) + "->" + a5.x + (char)('A' + a5.y - 1) + "\n");
+								
+								if(add == 0) {
+									state.round = Round.SELF;
+									mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
+								}
+								else {
+									mesText.append("您可以方吃" + add + "颗子！");
+									state.eatStage = EatStage.FANGEATING;
+									state.FangEatNum = add;
+									qipuText.append("FC：");
+								}
+							}
+						}
+						else if (previewPiece.getlocX() == state.getSelectPiece().x && previewPiece.getlocY() == state.getSelectPiece().y) {
+							state.eatStage = EatStage.SELECTING; 
+							mesText.append("当前已取消选中：" + previewPiece.getlocX() + (char)(previewPiece.getlocY() + 'A' - 1) + "\n");
+							mesText.append("请继续选择");
+							state.addition --;
+						}
+						else {
+							//move
+							Point a4 = state.getSelectPiece();
+							Point a5 = new Point(previewPiece.getlocX(), previewPiece.getlocY());
+							formalPiece[a4.x][a4.y].setEmpty();
+							formalPiece[a5.x][a5.y].setPiece(enemyColor);
+							int add = 0;
+							if(getPieceState(a5.x, a5.y + 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y + 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y) == Board.ENEMY) add++;
+							if(getPieceState(a5.x, a5.y - 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y - 1) == Board.ENEMY && getPieceState(a5.x + 1, a5.y) == Board.ENEMY) add++;
+							if(getPieceState(a5.x, a5.y - 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y - 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y) == Board.ENEMY) add++;
+							if(getPieceState(a5.x, a5.y + 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y + 1) == Board.ENEMY && getPieceState(a5.x - 1, a5.y) == Board.ENEMY) add++;
+							
+							
+							a4 = transToBack(a4);
+							a5 = transToBack(a5);
+							Board.setBoard(a4.x,a4.y,Board.EMPTY);
+							Board.setBoard(a5.x,a5.y,Board.ENEMY);
+							qipuText.append((enemyColor == Color.white?"W":"B") + state.addition + "：" + a4.x + (char)('A' + a4.y - 1) + "->" + a5.x + (char)('A' + a5.y - 1) + "\n");
+							
+							if(add == 0) {
+								state.round = Round.SELF;
+								mesText.setText("行棋阶段：\n轮到电脑下！\n请等待...\n");
+							}
+							else {
+								mesText.append("您可以方吃" + add + "颗子！");
+								state.eatStage = EatStage.FANGEATING;
+								state.FangEatNum = add;
+								qipuText.append("FC：");
+							}
+							
+						}
+						bottomUpDate();
 						break;
 					default:
 						break;
 					}
 					Board.display();
 					
+					if(state.enemyPiece == 0) {
+						JOptionPane.showMessageDialog(owner, "You Lost!");
+					}
+					else if (state.selfPiece == 0) {
+						JOptionPane.showMessageDialog(owner, "You Win!");
+					}
+					
 					if(state.round == Round.SELF) {
 						selfJumpEat();
+					}
+					
+					if(state.enemyPiece == 0) {
+						JOptionPane.showMessageDialog(owner, "You Lost!");
+					}
+					else if (state.selfPiece == 0) {
+						JOptionPane.showMessageDialog(owner, "You Win!");
 					}
 					
 				}//行棋阶段结束

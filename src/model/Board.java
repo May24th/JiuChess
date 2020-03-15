@@ -40,12 +40,12 @@ public class Board {
 		else System.out.println("设置点在棋盘外了");
 		
 		
-		//test
-		if(x == 2 && y == 3) {
-			for(int i = 0;i < 5 ;i ++) {
-				System.out.println(ErrorTracker.getTestMessage(i));
-			}
-		}
+//		//test
+//		if(x == 2 && y == 3) {
+//			for(int i = 0;i < 5 ;i ++) {
+//				System.out.println(ErrorTracker.getTestMessage(i));
+//			}
+//		}
 	}
 	
 	public static void setBoard(int[][] temp) {

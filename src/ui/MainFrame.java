@@ -24,6 +24,7 @@ import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
 import back.Version;
+import control.Main;
 import model.Board;
 import model.Point;
 import opening.Attack;
@@ -48,7 +49,7 @@ public class MainFrame extends JFrame {
   		
 	}
 	
-	public static final int boardSize = 8;
+	public static final int boardSize = Main.BOARDSIZE;
 	static final int FrameSizeW = 900;
 	static final int FrameSizeH = 900;
 	

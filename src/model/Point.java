@@ -79,4 +79,16 @@ public class Point implements Comparable{
 	public Point Centrosymmetric() {
 		return new Point(Board.maxIndex + 1 - x, Board.maxIndex + 1 - y);
 	}
+	
+	public static Point clockWise(int x,int y) {
+		return new Point(y, Board.maxIndex + 1 - x);
+	}
+	
+	public static Point NiclockWise(int x,int y) {
+		return new Point(Board.maxIndex + 1 - y, x);
+	}
+	
+	public static Point Centrosymmetric(int x,int y) {
+		return new Point(Board.maxIndex + 1 - x, Board.maxIndex + 1 - y);
+	}
 }

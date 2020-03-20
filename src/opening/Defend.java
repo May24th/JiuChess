@@ -1,15 +1,19 @@
 package opening;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import back.Version;
 import model.Board;
 import model.Point;
 
 public class Defend {
 	private static int[][] square = new int[Board.maxIndex + 2][Board.maxIndex + 2];
-	private static int[][] addition = new int[Board.maxIndex + 2][Board.maxIndex + 2];
+//	/**需要增加的分数*/
+//	private static int[][] addition = new int[Board.maxIndex + 2][Board.maxIndex + 2];
+	/**需要增加值的点*/
 	private static Stack<ArrayList<Point>> defenseAddition = new Stack<ArrayList<Point>>();
 	public static void init() {
 		square[Board.index][Board.index + 1] = Open.defenseBase;
@@ -26,11 +30,15 @@ public class Defend {
 	public static ArrayList<Point> getBestDefensePoints() {
 		int max = 0;
 		ArrayList<Point> bestPoints = new ArrayList<Point>();
+		
+		int[][] addition = new int[Board.maxIndex + 2][Board.maxIndex + 2];
 		for(ArrayList<Point> arr : defenseAddition) {
 			for(Point p : arr) {
-				addition[p.x][p.y] += 1;
+				addition[p.x][p.y] ++;
 			}
 		}
+		
+		
 		for (int i = Board.maxIndex; i >= Board.minIndex; i--) {
 			for (int j = Board.minIndex; j <= Board.maxIndex; j++) {
 				int temp = getDefenseScore(i, j);
@@ -268,14 +276,12 @@ public class Defend {
 						defenseAddition.push(toDefend);
 				}
 			}
+			
 		} else {	//落子為己方
-			List<ArrayList<Point>> toDelete = new ArrayList();
+			List<ArrayList<Point>> toDelete = new ArrayList<ArrayList<Point>>();
 			for(ArrayList<Point> arr : defenseAddition) {
 				for(Point p : arr) {
 					if(p.x == x && p.y == y) {
-						for(Point p_temp : arr) {
-							addition[p_temp.x][p_temp.y] -= 1;
-						}
 						toDelete.add(arr);
 						break;
 					}
@@ -283,6 +289,7 @@ public class Defend {
 			}
 			defenseAddition.removeAll(toDelete);
 		}
+		
 	}
 	
 	/***
@@ -302,12 +309,55 @@ public class Defend {
 			if (y < Board.maxIndex)
 				score += square[x - 1][y]; // 右下
 		}
-		if (x < 14) {
+		if (x < Board.maxIndex) {
 			if (y - 1 > 0)
 				score += square[x][y - 1]; // 左上
 			if (y < Board.maxIndex)
 				score += square[x][y]; // 右上
 		}
 		return score * score;
+	}
+
+	public static int[][] getSquare(){
+		int[][] T = new int[Board.maxIndex + 2][Board.maxIndex + 2];
+		for (int i = 0; i < Board.maxIndex + 2; i++) {
+			for (int j = 0; j < Board.maxIndex + 2; j++) {
+				T[i][j] = square[i][j];
+			}
+		}
+		return T;
+		
+	}
+	
+	public static Stack<ArrayList<Point>> getDefendAddition(){
+		Stack<ArrayList<Point>> T = new Stack<ArrayList<Point>>();
+		for (ArrayList<Point> arr : defenseAddition) {
+			 ArrayList<Point> A = new ArrayList<Point>();
+			for(Point P : arr) {
+				A.add(P.clone());
+			}
+			T.push(A);
+		}
+		return T;
+		 
+	}
+	
+	public static void pop(Version H) {
+		defenseAddition.clear();
+		Stack<ArrayList<Point>> T = H.getDefenseAddition();
+		for (ArrayList<Point> arr : T) {
+			 ArrayList<Point> A = new ArrayList<Point>();
+			for(Point P : arr) {
+				A.add(P.clone());
+			}
+			defenseAddition.push(A);
+		}
+		int[][] T2 = H.getSquare();
+		for (int i = 0; i < Board.maxIndex + 2; i++) {
+			for (int j = 0; j < Board.maxIndex + 2; j++) {
+				square[i][j] = T2[i][j];
+			}
+		}
+		
 	}
 }

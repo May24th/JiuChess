@@ -10,7 +10,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class RightPanel extends JPanel{
+import back.History;
+import back.Version;
+
+public class RightPanel extends JPanel implements History{
 	private static final long serialVersionUID = -1112354778507113141L;
 
 	public RightPanel(MainFrame owner,Component parentComponent) {
@@ -67,5 +70,19 @@ public class RightPanel extends JPanel{
 	
 	private int sizeH = LabelH*2 + messageAreaH + qipuAreaH + areaIntervel*3;
 	private int sizeW = 225;
+
+	@Override
+	public void pop(Version H) {
+		messageArea.setText(H.getMesText());
+		qipuArea.setText(H.getQipuText());
+	}
+	
+	public String getMes() {
+		return messageArea.getText();
+	}
+	
+	public String getQipu() {
+		return qipuArea.getText();
+	}
 	
 }

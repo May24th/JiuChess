@@ -2,9 +2,11 @@ package ui;
 
 import java.util.ArrayList;
 
+import back.History;
+import back.Version;
 import model.Point;
 
-public class ChessState {
+public class ChessState implements History{
 	public  ChessState() {
 		
 		stage = Stage.OPEN;		
@@ -49,7 +51,7 @@ public class ChessState {
 	/**记录回合数*/
 	public int addition;
 	/**已选择的跳吃的点，暂时储存，前端的值*/
-	private Point jumpPiece;
+	private Point jumpPiece = null;
 	/**暂存方吃的数量*/
 	public int FangEatNum;
 	/**暂存跳吃的子,为了棋谱的作用，所以存的是后端棋盘的值*/
@@ -60,6 +62,53 @@ public class ChessState {
 	}
 	
 	public Point getSelectPiece() {
-		return jumpPiece.clone();
+		
+		try {
+			return new Point(jumpPiece.x,jumpPiece.y);
+		} catch (Exception e) {
+			return new Point(0,0);
+		}
+		
+	}
+	
+	public ChessState getChessState() {
+		ChessState a = new ChessState();
+		a.addition = addition;
+		a.eatStage = eatStage;
+		a.emptyPiece = emptyPiece;
+		a.enemyPiece = enemyPiece;
+		a.FangEatNum = FangEatNum;
+		try {
+			a.jumpPiece = jumpPiece.clone();
+		} catch (Exception e) {
+			a.jumpPiece = new Point(0,0);
+		}
+		
+		a.round = round;
+		a.selfPiece = selfPiece;
+		a.stage = stage;
+		for (Point p : tempTC) {
+			a.tempTC.add(p.clone());
+		}
+		
+		return a;
+	}
+
+	@Override
+	public void pop(Version H) {
+		ChessState a = H.getChessState();
+		addition = a.addition;
+		eatStage = a.eatStage;
+		emptyPiece = a.emptyPiece;
+		enemyPiece = a.enemyPiece;
+		FangEatNum = a.FangEatNum;
+		jumpPiece = a.jumpPiece.clone();
+		round = a.round;
+		selfPiece = a.selfPiece;
+		stage = a.stage;
+		tempTC.clear();
+		for (Point p : a.tempTC) {
+			tempTC.add(p.clone());
+		}
 	}
 }

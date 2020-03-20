@@ -2,6 +2,7 @@ package opening;
 
 import java.util.ArrayList;
 
+import back.Version;
 import model.Board;
 import model.Point;
 
@@ -169,6 +170,22 @@ public class Attack {
 		Attack.attackScores[x][y] = attackScore;
 	}
 	
+	public static int[][] getAttackScore(){
+		int[][] T = new int[Board.maxIndex + 2][Board.maxIndex + 2];
+		for (int i = 0; i < Board.maxIndex + 2; i++) {
+			for (int j = 0; j < Board.maxIndex + 2; j++) {
+				T[i][j] = attackScores[i][j]; 
+			}
+		}
+		return T;
+	}
 	
-
+	public static void pop(Version H) {
+		int[][] T = H.getAttackScore();
+		for (int i = 0; i < Board.maxIndex + 2; i++) {
+			for (int j = 0; j < Board.maxIndex + 2; j++) {
+				attackScores[i][j] = T[i][j]; 
+			}
+		}
+	}
 }

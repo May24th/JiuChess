@@ -10,72 +10,55 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Stack;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 
+import back.Version;
 import model.Board;
 import model.Point;
+import opening.Attack;
+import opening.Defend;
 import opening.Open;
+import ui.ChessState.EatStage;
 import ui.ChessState.Round;
+import ui.ChessState.Stage;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 5520531127962754351L;
 
 	public MainFrame() {
 		super();
-		state = new ChessState();
 		setSize(FrameSizeW, FrameSizeH);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setVisible(true);
-//	    showOpenDialog(this, this);
-		mainPanel = new conPane(this, this);
-	    setContentPane(mainPanel);
-	    revalidate();
-	    
-	    //开局
-  		Open.init();
-  		mainPanel.rightText.messageArea.append("初始化完成！\n");
-  		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------布局阶段------------\n");
-  		mainPanel.rightText.qipuArea.append("W1：" + boardSize/2 + (char)(boardSize/2 +'A' - 1) +"\n");
-  		mainPanel.rightText.qipuArea.append("B2：" + (boardSize/2 + 1) + (char)(boardSize/2 +'A') + "\n");
-  		
-  		if(selfColor == Color.white) {
-  			mainPanel.rightText.messageArea.setText("布局阶段：\n轮到电脑下！\n请等待...\n");
-  			state.round = Round.SELF;
-  			ArrayList<Point> tArrayList = Open.getBestPoints_v3();
-  			int a = new Random().nextInt(tArrayList.size());
-  			Open.play(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
-  			mainPanel.centerBoard.setPiece(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
-  			state.selfPiece ++;
-  			state.emptyPiece --;
-  			state.round = Round.ENEMY;
-  			state.addition ++;
-  			mainPanel.rightText.qipuArea.append((selfColor == Color.black? "B":"W") + state.addition +
-  					"：" + tArrayList.get(a).x + String.valueOf((char)(tArrayList.get(a).y - 1 + 'A')) + "\n");
-  			mainPanel.bottomLabel.setText("当前棋盘上黑子数：" + state.enemyPiece + "，白子数：" + state.selfPiece + "，空子数：" + state.emptyPiece + "。");
-  		}
-  		mainPanel.rightText.messageArea.setText("布局阶段：\n轮到你了！\n");
+		
+		mainframeInit();
   		
 	}
 	
-	public static final int boardSize = 4;
+	public static final int boardSize = 8;
 	static final int FrameSizeW = 900;
 	static final int FrameSizeH = 900;
 	
 	
 	public ChessState state;
 	public int rotateA = 0;					//0代表原始，1~3代表顺时针旋转90°~270°
-	public Color enemyColor = Color.white;
-	public Color selfColor = Color.black;
+	public Color enemyColor;
+	public Color selfColor;
+	
+	public Stack<Version> backStack = new Stack<Version>();
 	
 	//组件
 	public conPane mainPanel;
@@ -148,10 +131,69 @@ public class MainFrame extends JFrame {
 	 * 用于restart
 	 */
 	public void mainframeInit() {
-		rotateA = 0;
-		enemyColor = Color.black;
-		selfColor = Color.white;
+		//初始化
+		backStack.clear();
 		state = new ChessState();
+		enemyColor = Color.white;
+		selfColor = Color.black;
+		showOpenDialog(this, this);
+		mainPanel = new conPane(this, this);
+		setContentPane(mainPanel);
+	    revalidate();
+	    
+	    ActionListener tlistener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainframeInit();
+			}
+		}; 
+		mainPanel.leftButton.restart.addActionListener(tlistener);
+		
+		ActionListener huiListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				huiFuc();
+			}
+		};
+		
+		mainPanel.leftButton.huiqi.addActionListener(huiListener);
+		
+		
+		
+	    //开局
+  		Open.init();
+  		mainPanel.rightText.messageArea.append("初始化完成！\n");
+  		mainPanel.rightText.qipuArea.append("欢迎来到久棋对战平台...\n------------布局阶段------------\n");
+  		mainPanel.rightText.qipuArea.append("W1：" + boardSize/2 + (char)(boardSize/2 +'A' - 1) +"\n");
+  		mainPanel.rightText.qipuArea.append("B2：" + (boardSize/2 + 1) + (char)(boardSize/2 +'A') + "\n");
+  		
+  		if(selfColor == Color.white) {
+  			mainPanel.rightText.messageArea.setText("布局阶段：\n轮到电脑下！\n请等待...\n");
+  			state.round = Round.SELF;
+  			ArrayList<Point> tArrayList = Open.getBestPoints_v3();
+  			int a = new Random().nextInt(tArrayList.size());
+  			Open.play(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
+  			mainPanel.centerBoard.setPiece(tArrayList.get(a).x, tArrayList.get(a).y, Board.SELF);
+  			state.selfPiece ++;
+  			state.emptyPiece --;
+  			state.round = Round.ENEMY;
+  			state.addition ++;
+  			mainPanel.rightText.qipuArea.append((selfColor == Color.black? "B":"W") + state.addition +
+  					"：" + tArrayList.get(a).x + String.valueOf((char)(tArrayList.get(a).y - 1 + 'A')) + "\n");
+  			mainPanel.bottomLabel.setText("当前棋盘上黑子数：" + state.enemyPiece + "，白子数：" + state.selfPiece + "，空子数：" + state.emptyPiece + "。");
+  		}
+  		mainPanel.rightText.messageArea.setText("布局阶段：\n轮到你了！\n");
+  		Board.display();
+  		//压入备份
+		backStack.push(new Version(
+				state.getChessState(),
+				Board.cloneBoard(),
+				mainPanel.rightText.getMes(),
+				mainPanel.rightText.getQipu(),
+				Defend.getDefendAddition(),
+				Defend.getSquare(),
+				Attack.getAttackScore()
+				));
 	}
 	
 	/**
@@ -229,6 +271,27 @@ public class MainFrame extends JFrame {
 		public JLabel test;									//
 	}
 
-	
+	public void huiFuc() {
+		if(backStack.size() <= 1) {
+			JOptionPane.showMessageDialog(this, "已经到最开始了", "Tips:", JOptionPane.WARNING_MESSAGE, null);
+		}
+		else {
+			backStack.pop();
+			Version H = backStack.peek();
+			state.pop(H);
+			Board.pop(H);
+			mainPanel.rightText.pop(H);
+			Defend.pop(H);
+			Attack.pop(H);
+			
+			mainPanel.centerBoard.refresh();
+			mainPanel.bottomLabel.setText("当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+					"，空子数：" + state.emptyPiece + "。");
+			
+			if(state.round ==Round.ENEMY && state.stage == Stage.EAT && state.eatStage == EatStage.JUMPINGJ) mainPanel.leftButton.endEating.setVisible(true);
+			else mainPanel.leftButton.endEating.setVisible(false);
+		}
+	}
 
 }

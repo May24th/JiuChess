@@ -19,10 +19,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import back.Version;
 import eat.BestEat;
 import flying.FlyStep;
 import model.Board;
 import model.Point;
+import opening.Attack;
+import opening.Defend;
 import opening.Open;
 import test.ErrorTracker;
 import ui.ChessState.EatStage;
@@ -221,6 +224,7 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						}
 			  			state.stage = Stage.EAT;
 			  			state.eatStage = EatStage.SELECTING;
+			  			state.round = Round.ENEMY;
 			  			state.enemyPiece --;
 			  			state.selfPiece --;
 			  			state.emptyPiece ++;
@@ -459,7 +463,6 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 					default:
 						break;
 					}
-					Board.display();
 					
 					if(state.enemyPiece == 0) {
 						JOptionPane.showMessageDialog(owner, "You Lost!");
@@ -483,6 +486,17 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				
 				qipuText.setCaretPosition(qipuText.getText().length());
 				Board.display();
+				
+				//压入备份
+				owner.backStack.push(new Version(
+						state.getChessState(),
+						Board.cloneBoard(),
+						owner.mainPanel.rightText.getMes(),
+						owner.mainPanel.rightText.getQipu(),
+						Defend.getDefendAddition(),
+						Defend.getSquare(),
+						Attack.getAttackScore()
+						));
 			}//click_end
 		};
 		previewPiece.addMouseListener(previewListener);
@@ -542,22 +556,27 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				
 			}
 		}
-		formalPiece[gridrow / 2][gridrow / 2].setPiece(selfColor);
-		formalPiece[gridrow / 2 + 1][gridrow / 2 + 1].setPiece(enemyColor);
-
+		switch (owner.rotateA) {
+		case 0:
+			formalPiece[gridrow / 2][gridrow / 2].setPiece(selfColor);
+			formalPiece[gridrow / 2 + 1][gridrow / 2 + 1].setPiece(enemyColor);
+			break;
+		case 1:
+			formalPiece[gridrow / 2][gridrow / 2 + 1].setPiece(selfColor);
+			formalPiece[gridrow / 2 + 1][gridrow / 2].setPiece(enemyColor);
+			break;
+		case 2:
+			formalPiece[gridrow / 2 + 1][gridrow / 2 + 1].setPiece(selfColor);
+			formalPiece[gridrow / 2][gridrow / 2].setPiece(enemyColor);
+			break;
+		case 3:
+			
+			formalPiece[gridrow / 2 + 1][gridrow / 2].setPiece(selfColor);
+			formalPiece[gridrow / 2][gridrow / 2 + 1].setPiece(enemyColor);
+			break;
+		}
+		
 		//设置按钮的监听器
-		ActionListener huiqiActionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-			}
-		};
-		ActionListener rotListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-			}
-		};
 		ActionListener endActionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -588,11 +607,18 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 				}
 			}
 		};
-		parentComponent.leftButton.huiqi.addActionListener(huiqiActionListener);
-		parentComponent.leftButton.rotButton.addActionListener(rotListener);
 		parentComponent.leftButton.endEating.addActionListener(endActionListener);
 	
-	
+		ActionListener rotActionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				owner.rotateA = (owner.rotateA + 1)%4;
+				refresh();
+				Point a = state.getSelectPiece().clockWise();
+				state.setSelectPiece(a.x, a.y);
+			}
+		};
+		parentComponent.leftButton.rotButton.addActionListener(rotActionListener);
 	
 	}
 	
@@ -635,22 +661,63 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		//横线
 		for(int i = y_indentation; i <= boardSize + y_indentation; i += gridSize){
 			a.drawLine(x_indentation, i, boardSize + x_indentation, i);				//画线
-			a.drawString(String.valueOf((char)('A' + q)),marginWidth,i + 5);		//坐标,相对，可改
+			switch (ownerFrame.rotateA) {
+			case 0:
+				a.drawString(String.valueOf((char)('A' + q)),marginWidth,i + 5);		//坐标,相对，可改
+				break;
+			case 1:
+				a.drawString(String.valueOf(MainFrame.boardSize - q),marginWidth,i + 5);		//坐标,相对，可改
+				break;
+			case 2:
+				a.drawString(String.valueOf((char)('A' + MainFrame.boardSize - q - 1)),marginWidth,i + 5);		//坐标,相对，可改
+				break;
+			case 3:
+				a.drawString(String.valueOf(1 + q),marginWidth,i + 5);		//坐标,相对，可改
+				break;
+			}
 			q++;
 		}
 		q = 0;
 		//竖线
 		for(int j = x_indentation; j <= boardSize + x_indentation; j += gridSize){
 			a.drawLine(j, y_indentation, j, boardSize + y_indentation);				//画线
-			a.drawString(String.valueOf(1 + q),j ,size - marginWidth);				//坐标,相对，可改
+			switch (ownerFrame.rotateA) {
+			case 0:
+				a.drawString(String.valueOf(1 + q),j ,size - marginWidth);				//坐标,相对，可改
+				break;
+			case 1:
+				a.drawString(String.valueOf((char)('A' + q)),j ,size - marginWidth);				//坐标,相对，可改
+				break;
+			case 2:
+				a.drawString(String.valueOf(MainFrame.boardSize - q),j ,size - marginWidth);				//坐标,相对，可改
+				break;
+			case 3:
+				a.drawString(String.valueOf((char)('A' + MainFrame.boardSize - q - 1)),j ,size - marginWidth);				//坐标,相对，可改
+				break;
+			}
 			q++;
 		}
-		a.drawLine(boardSize/2 - gridSize/2 + x_indentation,
-				   boardSize/2 - gridSize/2 + y_indentation,
-				   boardSize/2 + gridSize/2 + x_indentation,
-				   boardSize/2 + gridSize/2 + y_indentation);
-		a.fillOval(boardSize/2 - gridSize/2 + x_indentation - 4,boardSize/2 - gridSize/2 + y_indentation - 4,8,8);
-		a.fillOval(boardSize/2 + gridSize/2 + x_indentation - 4,boardSize/2 + gridSize/2 + y_indentation - 4,8,8);
+		switch (ownerFrame.rotateA) {
+		case 0:
+		case 2:
+			a.drawLine(boardSize/2 - gridSize/2 + x_indentation,
+					   boardSize/2 - gridSize/2 + y_indentation,
+					   boardSize/2 + gridSize/2 + x_indentation,
+					   boardSize/2 + gridSize/2 + y_indentation);
+			a.fillOval(boardSize/2 - gridSize/2 + x_indentation - 4,boardSize/2 - gridSize/2 + y_indentation - 4,8,8);
+			a.fillOval(boardSize/2 + gridSize/2 + x_indentation - 4,boardSize/2 + gridSize/2 + y_indentation - 4,8,8);
+			break;
+		case 1:
+		case 3:
+			a.drawLine(boardSize/2 - gridSize/2 + x_indentation,
+					   boardSize/2 + gridSize/2 + y_indentation,
+					   boardSize/2 + gridSize/2 + x_indentation,
+					   boardSize/2 - gridSize/2 + y_indentation);
+			a.fillOval(boardSize/2 + gridSize/2 + x_indentation - 4,boardSize/2 - gridSize/2 + y_indentation - 4,8,8);
+			a.fillOval(boardSize/2 - gridSize/2 + x_indentation - 4,boardSize/2 + gridSize/2 + y_indentation - 4,8,8);
+			break;
+		}
+		
 		a.dispose();
 	}
 	
@@ -968,23 +1035,86 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		}
 	}
 	
+	 /** 将Board中的点转化为UI界面上的点
+	 * @param backPoint
+	 * @return
+	 */
+	private Point transToFront (int backPointX,int backPointY) {
+		switch (ownerFrame.rotateA) {
+		case 0:
+			return new Point(backPointX,backPointY);
+		case 1:
+			return Point.clockWise(backPointX,backPointY);
+		case 2:
+			return Point.Centrosymmetric(backPointX,backPointY);
+		case 3:
+			return Point.NiclockWise(backPointX,backPointY);
+		default:
+			return new Point(backPointX,backPointY);
+		}
+	}
+	
+	/**
+	 * 将UI界面上的点转化为Board中的点
+	 * @param backPoint
+	 * @return
+	 */
+	private Point transToBack (int FrontPointX,int FrontPointY) {
+		switch (ownerFrame.rotateA) {
+		case 0:
+			return new Point(FrontPointX,FrontPointY);
+		case 1:
+			return Point.NiclockWise(FrontPointX,FrontPointY);
+		case 2:
+			return Point.Centrosymmetric(FrontPointX,FrontPointY);
+		case 3:
+			return Point.clockWise(FrontPointX,FrontPointY);
+		default:
+			return new Point(FrontPointX,FrontPointY);
+		}
+	}
 	
 	/**
 	 * 主要在外部调用
 	 * */
 	public void setPiece(int x, int y, int t) {
+		Point a = transToFront(new Point(x,y));
 		switch (t) {
 		case Board.EMPTY:
-			formalPiece[x][y].setEmpty();
+			formalPiece[a.x][a.y].setEmpty();
 			break;
 		case Board.SELF:
-			formalPiece[x][y].setPiece(selfColor);
+			formalPiece[a.x][a.y].setPiece(selfColor);
 			break;
 		case Board.ENEMY:
-			formalPiece[x][y].setPiece(enemyColor);
+			formalPiece[a.x][a.y].setPiece(enemyColor);
 			break;
 		}
 		
+	}
+	
+	/**
+	 * 用于刷新棋盘
+	 *
+	 * @Reference rotActionListener(this),huiFuc(MainFrame)
+	 */
+	public void refresh() {
+		ownerFrame.mainPanel.centerBoard.repaint();
+		Point a;
+		for (int i = 1; i <= MainFrame.boardSize; i++) {
+			for (int j = 1; j <= MainFrame.boardSize; j++) {
+				a = transToFront(i, j);
+				if(Board.getBoard(i,j) == Board.ENEMY) {
+					formalPiece[a.x][a.y].setPiece(enemyColor);
+				}
+				else if (Board.getBoard(i,j) == Board.SELF) {
+					formalPiece[a.x][a.y].setPiece(selfColor);
+				}
+				else {
+					formalPiece[a.x][a.y].setEmpty();
+				}
+			}
+		}
 	}
 	
 	

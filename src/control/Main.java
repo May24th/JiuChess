@@ -1,4 +1,4 @@
-//Github URL:https://github.com/May24th/JiuChess.git
+//Github URL:			https://github.com/May24th/JiuChess.git
 
 package control;
 

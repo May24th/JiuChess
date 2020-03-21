@@ -527,23 +527,26 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 						if(state.eatStage == EatStage.SELECTING && getPieceState(ti, tj) == Board.ENEMY) {
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
-							l1.setText("x = " + previewPiece.getlocX());
-							l2.setText("y = " + previewPiece.getlocY());
+							Point x = transToBack(previewPiece.getlocX(),previewPiece.getlocY());
+							l1.setText("x = " + x.x);
+							l2.setText("y = " + (char)(x.y + 64));
 							previewPiece.setVisible(true);
 						}
 						else if(state.eatStage == EatStage.FANGEATING && getPieceState(ti, tj) == Board.SELF){
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
-							l1.setText("x = " + previewPiece.getlocX());
-							l2.setText("y = " + previewPiece.getlocY());
+							Point x = transToBack(previewPiece.getlocX(),previewPiece.getlocY());
+							l1.setText("x = " + x.x);
+							l2.setText("y = " + (char)(x.y + 64));
 							previewPiece.setVisible(true);
 						}
 						else if((state.eatStage == EatStage.JUMPING || state.eatStage == EatStage.FLYMOVE) && ti == state.getSelectPiece().x && tj == state.getSelectPiece().y){
 							//取消
 							previewPiece.setLocation(o.x,o.y);
 							previewPiece.setloc(ti, tj);
-							l1.setText("x = " + previewPiece.getlocX());
-							l2.setText("y = " + previewPiece.getlocY());
+							Point x = transToBack(previewPiece.getlocX(),previewPiece.getlocY());
+							l1.setText("x = " + x.x);
+							l2.setText("y = " + (char)(x.y + 64));
 							previewPiece.setVisible(true);
 						}
 						else previewPiece.setVisible(false);
@@ -746,8 +749,9 @@ public class CenterBorad extends JPanel implements MouseMotionListener, MouseLis
 		if(isTempVisible(e.getX(), e.getY())) {
 			previewPiece.setLocation(px/gridSize * gridSize + letterSize + marginWidth, py/gridSize * gridSize + marginWidth);
 			previewPiece.setloc(px/gridSize + 1, py/gridSize + 1);		//若没旋转棋面
-			l1.setText("x = " + previewPiece.getlocX());
-			l2.setText("y = " + previewPiece.getlocY());
+			Point x = transToBack(previewPiece.getlocX(),previewPiece.getlocY());
+			l1.setText("x = " + x.x);
+			l2.setText("y = " + (char)(x.y + 64));
 			previewPiece.setVisible(true);
 		}
 		else previewPiece.setVisible(false);

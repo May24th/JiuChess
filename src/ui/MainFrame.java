@@ -3,15 +3,18 @@ package ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Label;
+import java.awt.FontFormatException;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
+import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -37,8 +40,10 @@ import ui.ChessState.Stage;
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 5520531127962754351L;
 
-	public MainFrame() {
-		super();
+	public MainFrame() throws FileNotFoundException, IOException  {
+		super("HappyJiu");
+		Image M = ImageIO.read(new FileInputStream("image/frame.png"));
+		setIconImage(M);
 		setSize(FrameSizeW, FrameSizeH);
 		setResizable(false);
 		setLocationRelativeTo(null);
@@ -51,7 +56,7 @@ public class MainFrame extends JFrame {
 	
 	public static final int boardSize = Main.BOARDSIZE;
 	static final int FrameSizeW = 900;
-	static final int FrameSizeH = 900;
+	static final int FrameSizeH = 750;
 	
 	
 	public ChessState state;
@@ -74,7 +79,7 @@ public class MainFrame extends JFrame {
 	    // 创建一个模态对话框
 	    final JDialog dialog = new JDialog(owner, "开局", true);
 	    // 设置对话框的宽高
-	    dialog.setSize(250, 125);
+	    dialog.setSize(300, 150);
 	    // 设置对话框大小不可改变
 	    dialog.setResizable(false);
 	    // 设置对话框相对显示的位置
@@ -93,6 +98,7 @@ public class MainFrame extends JFrame {
 	    
 	    // 创建一个按钮用于关闭对话框
 	    JButton okBtn = new JButton("确定");
+	    okBtn.setBounds(50, 80, 50, 50);
 	    okBtn.addActionListener(new ActionListener() {
 	        @Override
 	        public void actionPerformed(ActionEvent e) {
@@ -137,7 +143,7 @@ public class MainFrame extends JFrame {
 		state = new ChessState();
 		enemyColor = Color.white;
 		selfColor = Color.black;
-		showOpenDialog(this, this);
+//		showOpenDialog(this, this);
 		mainPanel = new conPane(this, this);
 		setContentPane(mainPanel);
 	    revalidate();
@@ -208,52 +214,66 @@ public class MainFrame extends JFrame {
 		public conPane(MainFrame owner,Component parentComponent) {
 			super(null);
 			
-			/**testJLabel*/
-			test = new JLabel((enemyColor == Color.white?"白棋":"黑棋"),SwingConstants.CENTER);
-			test.setFont(new Font("微软雅黑", Font.BOLD, 70));
-			test.setBounds((FrameSizeW - 300)/2, 10, 300, 100);
-			test.setOpaque(true);
-			test.setBackground(Color.gray);
-		    add(test);
-		    lx.setBounds(0, 0, 100, 20);
-			ly.setBounds(0, 20, 100, 20);
-			add(lx);
-			add(ly);
-			addMouseMotionListener(new MouseMotionListener() {
-				@Override
-				public void mouseMoved(MouseEvent e) {
-					lx.setText("x = " + String.valueOf(e.getX()));
-					ly.setText("y = " + String.valueOf(e.getY()));
-				}
-				@Override
-				public void mouseDragged(MouseEvent e) {}
-			});
+//		    lx.setBounds(0, 0, 100, 20);
+//			ly.setBounds(0, 20, 100, 20);
+//			add(lx);
+//			add(ly);
+//			addMouseMotionListener(new MouseMotionListener() {
+//				@Override
+//				public void mouseMoved(MouseEvent e) {
+//					lx.setText("x = " + String.valueOf(e.getX()));
+//					ly.setText("y = " + String.valueOf(e.getY()));
+//				}
+//				@Override
+//				public void mouseDragged(MouseEvent e) {}
+//			});
 		    
 		    
 		    /**左边组件*/
 		    leftButton = new LeftPanel(owner, this);
-		    leftButton.setLocation(75, 250);
+		    leftButton.setLocation(45, 250);
 		    add(leftButton);
 		    
 		    /**右边组件*/
 		    rightText = new RightPanel(owner, this);
-		    rightText.setLocation(635, 150);
+		    rightText.setLocation(635, 50);
 		    add(rightText);
 		    
 		    /**底部组件*/
-		    bottomLabel = new JLabel("当前棋盘上黑子数：" + state.enemyPiece + "，白子数：" + state.selfPiece + "。",SwingConstants.CENTER);
-			bottomLabel.setBounds(75, 600, 500, 50);
-			bottomLabel.setFont(new Font("微软雅黑", Font.BOLD, 20));
+		    bottomLabel = new JLabel(
+		    		"当前棋盘上黑子数：" + (selfColor == Color.black?state.selfPiece:state.enemyPiece) +
+					"，白子数：" + (selfColor == Color.white?state.selfPiece:state.enemyPiece) +
+					"，空子数：" + state.emptyPiece + "。",
+					SwingConstants.CENTER);
+			bottomLabel.setBounds(0, FrameSizeH - 90, 436, 50);
+			bottomLabel.setFont(new Font("微软雅黑", Font.PLAIN, 18));
 			bottomLabel.setOpaque(true);
-			bottomLabel.setBackground(Color.gray);
+			bottomLabel.setBackground(new Color(0x9F9AA4));
 		    add(bottomLabel);
 		    
 		    /**中心棋盘*/
 		    centerBoard = new CenterBorad(owner,this,boardSize/2);
-		    centerBoard.setLocation((int) (FrameSizeW/2 - centerBoard.getSize().getWidth()/2), 200);	//居中
+		    centerBoard.setLocation((int) (FrameSizeW/2 - centerBoard.getSize().getWidth()/2) - 30, 210);	//居中
 		    add(centerBoard);
 		    
 		    Board.display();
+		    
+		    
+		    /**welcomeJLabel & JiuJLabel*/
+			welcomeJLabel = new JLabel("Welcome to",SwingConstants.CENTER);
+			welcomeJLabel.setFont(new Font("微软雅黑", Font.BOLD, 40));
+			welcomeJLabel.setBounds(50, 20, 500, 40);
+			welcomeJLabel.setOpaque(true);
+		    add(welcomeJLabel);
+		    
+		    jiuJLabel = new JLabel("HappyJiu!",SwingConstants.CENTER);
+			Font a = FontImport.DidotFont().deriveFont(Font.PLAIN,90);
+			jiuJLabel.setFont(a);
+			jiuJLabel.setBounds(65, 60, 500, 120);
+			jiuJLabel.setForeground(new Color(0x6369D1));
+//			jiuJLabel.setBackground(Color.gray);
+//			jiuJLabel.setOpaque(true);
+		    add(jiuJLabel);
 		}
 		
 		
@@ -267,9 +287,10 @@ public class MainFrame extends JFrame {
 		public JLabel bottomLabel;
 		
 		//test
-		private Label lx = new Label();						//
-		private Label ly = new Label();						//
-		public JLabel test;									//
+//		private Label lx = new Label();						//
+//		private Label ly = new Label();						//
+		public JLabel welcomeJLabel;									//
+		public JLabel jiuJLabel;
 	}
 
 	public void huiFuc() {

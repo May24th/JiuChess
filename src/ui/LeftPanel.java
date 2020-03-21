@@ -1,15 +1,11 @@
 package ui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import ui.FontImport.SourceHanSansCN;
 
 public class LeftPanel extends JPanel{
 	private static final long serialVersionUID = 143401199332655953L;
@@ -17,9 +13,8 @@ public class LeftPanel extends JPanel{
 	public LeftPanel(MainFrame owner,Component parentComponent) {
 		super();
 		setLayout(null);
-		setBackground(Color.gray);
 		setSize(sizeW, sizeH);
-		Font tempfont = new Font("微软雅黑", Font.BOLD, 25);
+		Font tempfont = FontImport.fzxkbxkjFont().deriveFont(Font.PLAIN,30);
 		
 		restart.setBounds(0, 0, sizeW, 75);
 		restart.setFont(tempfont);

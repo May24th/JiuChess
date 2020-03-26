@@ -143,7 +143,7 @@ public class MainFrame extends JFrame {
 		state = new ChessState();
 		enemyColor = Color.white;
 		selfColor = Color.black;
-//		showOpenDialog(this, this);
+		showOpenDialog(this, this);
 		mainPanel = new conPane(this, this);
 		setContentPane(mainPanel);
 	    revalidate();
